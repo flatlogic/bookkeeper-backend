@@ -1,0 +1,14 @@
+version: "3"
+services:
+  db:
+    image: "postgres:latest"
+    container_name: "cp_for_web_postgres"
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_PASSWORD: root
+      POSTGRES_USER: postgres
+    volumes:
+      - my_dbdata:/var/lib/postgresql/data
+volumes:
+  my_dbdata:

@@ -1,0 +1,363 @@
+{
+	"info": {
+		"_postman_id": "31670583-1a88-4fa0-90f9-153127608f98",
+		"name": "CP_WEB",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Accounts. Create",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"code\": \"P25ERE\",\n\t\"fiscalYear\": \"2019\",\n\t\"description\": \"Account P25FRL\",\n\t\"type\": \"l\",\n\t\"status\": 1,\n\t\"restriction\": \"jet\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/accounts",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"accounts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SubAccounts. Create",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"code\": \"SUB5463FL\",\n\t\"description\": \"Sub account 1\",\n\t\"parent\": 1\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/subaccounts",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"subaccounts"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Accounts. List",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/accounts?fiscalYear=2019",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"accounts"
+					],
+					"query": [
+						{
+							"key": "fiscalYear",
+							"value": "2019"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SubAccounts. List",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/subaccounts?fiscalYear=2019",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"subaccounts"
+					],
+					"query": [
+						{
+							"key": "fiscalYear",
+							"value": "2019"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Accounts. Update",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"code\": \"P25ERL\",\n\t\"fiscalYear\": \"2018\",\n\t\"description\": \"Account P25FRL3\",\n\t\"type\": \"a\",\n\t\"status\": 1,\n\t\"restriction\": \"sbt\"\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/accounts/1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"accounts",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SubAccounts. Update",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"code\": \"SUB5463FL\",\n\t\"description\": \"Sub account 2\",\n\t\"parent\": null\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/subaccounts/3",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"subaccounts",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Accounts. Delete",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/accounts/1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"accounts",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SubAccounts. Delete",
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/subaccounts/3",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"subaccounts",
+						"3"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Accounts. Get",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/accounts/1",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"accounts",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "SubAccounts. Get",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/subaccounts/4",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"subaccounts",
+						"4"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Accounts. Set Budget",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"budget\": [\n\t\t11,\n\t\t2,\n\t\t3,\n\t\t4,\n\t\t5,\n\t\t6,\n\t\t7,\n\t\t8,\n\t\t9,\n\t\t10,\n\t\t11,\n\t\t12\n\t]\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/accounts/9/budget",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"accounts",
+						"9",
+						"budget"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Accounts. Get Budget",
+			"protocolProfileBehavior": {
+				"disableBodyPruning": true
+			},
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"type": "text",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"budget\": [\n\t\t11,\n\t\t2,\n\t\t3,\n\t\t4,\n\t\t5,\n\t\t6,\n\t\t7,\n\t\t8,\n\t\t9,\n\t\t10,\n\t\t11,\n\t\t12\n\t]\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/accounts/9/budget",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"accounts",
+						"9",
+						"budget"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "General Ledger. Get",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/api/general-ledger",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"general-ledger"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "General Ledger. Update",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"name": "Content-Type",
+						"value": "application/json",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"period1Name\": \"October\",\n\t\"period1Status\": 1,\n\t\"period2Name\": \"November\",\n\t\"period2Status\": 1,\n\t\"period3Name\": \"Dec\",\n\t\"period3Status\": 1,\n\t\"period4Name\": \"Jan\",\n\t\"period4Status\": 1,\n\t\"period5Name\": \"Feb\",\n\t\"period5Status\": 1,\n\t\"period6Name\": \"Mar\",\n\t\"period6Status\": 1,\n\t\"period7Name\": \"Apr\",\n\t\"period7Status\": 1,\n\t\"period8Name\": \"May\",\n\t\"period8Status\": 1,\n\t\"period9Name\": \"Jun\",\n\t\"period9Status\": 1,\n\t\"period10Name\": \"Jul\",\n\t\"period10Status\": 1,\n\t\"period11Name\": \"Aug\",\n\t\"period11Status\": 1,\n\t\"period12Name\": \"Sep\",\n\t\"period12Status\": 1,\n\t\"currentFiscalYear\": 2019\n\t\n}"
+				},
+				"url": {
+					"raw": "{{baseUrl}}/api/general-ledger",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"api",
+						"general-ledger"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
