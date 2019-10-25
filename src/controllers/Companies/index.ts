@@ -1,19 +1,37 @@
 import { validate } from "class-validator";
 import { Request, Response } from "express";
 
+import changeCase from "change-case";
 import { STATUSES } from "../../constants";
 import Companies from "../../models/Companies";
+import Users from "../../models/Users";
 import dataMapper from "../../services/dataMapper";
 import { getRepository } from "../../services/db";
 
 export default class CompaniesController {
   public static async list(req: Request, res: Response) {
+    const { query, sortKey = "id", sortOrder = "asc"} = req.query;
     const repository = await getRepository(Companies);
-    const companies = await repository.find({
-      where: {
-        status: STATUSES.active,
-      },
-    });
+    const authUser = req.user as Users;
+    const companiesQuery = repository
+      .createQueryBuilder("companies")
+      .where(
+        `companies.is_deleted = :isDeleted ${query ? "AND (name ~* :query OR description ~* :query OR code ~* :query)" : ""}`,
+        { isDeleted: false, query }
+      );
+
+    if (authUser.isAdmin()) {
+      companiesQuery.innerJoinAndSelect(
+        "companies.organization", "organization", "organization.id = :organization",
+        { organization: authUser.getOrganizationId() }
+      );
+    } else {
+      companiesQuery.leftJoinAndSelect("companies.organization", "organization");
+    }
+    if (sortKey && sortOrder) {
+      companiesQuery.orderBy(`companies.${changeCase.snakeCase(sortKey)}`, sortOrder.toUpperCase());
+    }
+    const companies = await companiesQuery.getMany();
 
     res.json(companies);
   }
@@ -56,7 +74,22 @@ export default class CompaniesController {
       }
       company.set(companyData);
     } else {
-      company = new Companies(companyData);
+      let { organization } = req.query;
+      const authUser = req.user as Users;
+      if (authUser.isAdmin()) {
+        organization = authUser.getOrganizationId();
+      } else {
+        organization = 1;
+      }
+      if (!organization) {
+        return res.status(404).json({
+          errors: {
+            message: "User should be assigned to any organization",
+          },
+        });
+      }
+      company = new Companies({});
+      await company.set({...companyData, organization});
     }
 
     const errors = await validate(company, { skipMissingProperties: true });

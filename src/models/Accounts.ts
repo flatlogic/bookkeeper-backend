@@ -18,7 +18,7 @@ export const ACCOUNT_TYPES = {
 };
 
 @Entity()
-@Unique(["code", "fiscalYear", "parent"])
+@Unique(["code", "fiscalYear"])
 export default class Accounts {
   @PrimaryGeneratedColumn()
   public id: number;

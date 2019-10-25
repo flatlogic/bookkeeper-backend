@@ -1,6 +1,7 @@
 import * as express from "express";
 import accounts from "./accounts";
-import companies from "./companies";
+import admin from "./admin";
+import authentication from "./authentication";
 import generalLedger from "./generalLedger";
 import subAccounts from "./subAccounts";
 
@@ -12,5 +13,6 @@ export const register = ( app: express.Application ) => {
   accounts( app );
   subAccounts( app );
   generalLedger( app );
-  companies( app );
+  admin( app );
+  authentication( app );
 };

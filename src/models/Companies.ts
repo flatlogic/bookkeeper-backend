@@ -1,11 +1,18 @@
 import { Length, ValidateIf } from "class-validator";
-import { Column, Entity, PrimaryGeneratedColumn, Unique } from "typeorm";
+import {Column, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Unique} from "typeorm";
+
+import {getRepository} from "../services/db";
+import Organizations from "./Organizations";
+import Users from "./Users";
 
 @Entity()
 @Unique(["code"])
 export default class Companies {
   @PrimaryGeneratedColumn()
   public id: number;
+
+  @Column({name: "is_deleted", default: false})
+  public isDeleted: boolean = false;
 
   @Column({nullable: false})
   public code: string;
@@ -86,11 +93,18 @@ export default class Companies {
   @Column({name: "is_multiple_local_taxation", nullable: false, default: false})
   public isMultipleLocalTaxation: boolean = false;
 
+  @ManyToMany(() => Users, (user) => user.companies)
+  public users: Users[];
+
+  @ManyToOne(() => Organizations, (organization) => organization.companies)
+  @JoinColumn({ name: "organization_id" })
+  public organization: Organizations;
+
   constructor(data: any) {
     this.set(data);
   }
 
-  public set(data: any = {}) {
+  public async set(data: any = {}) {
     const {
       code, status, name, address1, address2, city, state, country, zipCode, zipCodeExt,
       telAreaCode, telPrefix, telNumber, licenseNumber, faxAreaCode, faxPrefix, faxNumber,
@@ -118,5 +132,17 @@ export default class Companies {
     this.defaultWithholdingLocal1Code = defaultWithholdingLocal1Code;
     this.defaultWithholdingLocal2Code = defaultWithholdingLocal2Code;
     this.isMultipleLocalTaxation = isMultipleLocalTaxation;
+
+    if (data.organization) {
+      await this.setOrganization(data.organization);
+    }
+  }
+
+  public async setOrganization(id: string|number) {
+    const repository = await getRepository(Organizations);
+    const result = await repository.findOne(id);
+    if (result) {
+      this.organization = result;
+    }
   }
 }

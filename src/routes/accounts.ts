@@ -4,10 +4,17 @@ import AccountsController from "../controllers/Accounts/accounts";
 import AccountsBudgetController from "../controllers/Accounts/accountsBudget";
 import accountsValidators from "../middleware/validators/accounts/accounts";
 import budgetsValidators from "../middleware/validators/accounts/budgets";
+import auth from "../middleware/validators/auth";
 import requestErrorValidator from "../middleware/validators/request";
 
 export default ( app: express.Application ) => {
-  app.get( "/api/accounts", accountsValidators.list, requestErrorValidator, AccountsController.list);
+  app.get(
+    "/api/accounts",
+    auth([], {gl: "read"}),
+    accountsValidators.list,
+    requestErrorValidator,
+    AccountsController.list
+  );
   app.get( "/api/accounts/:id", accountsValidators.hasId, requestErrorValidator, AccountsController.get);
   app.post( "/api/accounts", accountsValidators.create, requestErrorValidator, AccountsController.update);
   app.put(
