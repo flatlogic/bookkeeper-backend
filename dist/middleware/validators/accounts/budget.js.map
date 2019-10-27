@@ -1,0 +1,1 @@
+{"version":3,"file":"budget.js","sourceRoot":"","sources":["../../../../src/middleware/validators/accounts/budget.ts"],"names":[],"mappings":";;AAAA,yDAAgD;AAEhD,kBAAe;IACb,MAAM,EAAE;QACN,wBAAI,CAAC,WAAW,EAAE,+BAA+B,CAAC,CAAC,MAAM,EAAE;QAC3D,wBAAI,CAAC,QAAQ,EAAE,4BAA4B,CAAC,CAAC,MAAM,EAAE;KACtD;IACD,GAAG,EAAE;QACH,yBAAK,CAAC,WAAW,EAAE,+BAA+B,CAAC,CAAC,MAAM,EAAE;KAC7D;CACF,CAAC"}

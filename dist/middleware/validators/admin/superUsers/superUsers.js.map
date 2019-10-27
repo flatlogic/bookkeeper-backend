@@ -1,0 +1,1 @@
+{"version":3,"file":"superUsers.js","sourceRoot":"","sources":["../../../../../src/middleware/validators/admin/superUsers/superUsers.ts"],"names":[],"mappings":";;AAAA,yDAAyC;AAEzC,kBAAe;IACb,YAAY,EAAE;QACZ,wBAAI,CAAC,QAAQ,EAAE,oBAAoB,CAAC,CAAC,MAAM,EAAE,CAAC,IAAI,CAAC,CAAC,CAAC,EAAE,CAAC,CAAC,CAAC;KAC3D;CACF,CAAC"}

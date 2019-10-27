@@ -1,0 +1,1 @@
+{"version":3,"file":"subAccounts.js","sourceRoot":"","sources":["../../../../src/middleware/validators/accounts/subAccounts.ts"],"names":[],"mappings":";;AAAA,yDAAuD;AAEvD,kBAAe;IACb,MAAM,EAAE;QACN,wBAAI,CAAC,MAAM,EAAE,0BAA0B,CAAC,CAAC,MAAM,EAAE;QACjD,wBAAI,CAAC,aAAa,EAAE,iCAAiC,CAAC,CAAC,MAAM,EAAE;KAChE;CACF,CAAC"}
