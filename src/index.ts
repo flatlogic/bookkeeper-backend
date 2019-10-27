@@ -11,7 +11,7 @@ import * as db from "./services/db";
 
 dotenv.config();
 
-const port = process.env.SERVER_PORT;
+const port = process.env.PORT;
 const app = express();
 
 // Init DB connection
