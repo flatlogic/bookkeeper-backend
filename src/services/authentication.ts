@@ -1,7 +1,6 @@
 import {PassportStatic} from "passport";
 import * as passportJWT from "passport-jwt";
 
-import UserCompanyRoles from "../models/UserCompanyRoles";
 import Users from "../models/Users";
 import { getRepository } from "./db";
 

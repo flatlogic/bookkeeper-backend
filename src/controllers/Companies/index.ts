@@ -2,7 +2,6 @@ import { validate } from "class-validator";
 import { Request, Response } from "express";
 
 import changeCase from "change-case";
-import { STATUSES } from "../../constants";
 import Companies from "../../models/Companies";
 import Users from "../../models/Users";
 import dataMapper from "../../services/dataMapper";
@@ -13,13 +12,13 @@ export default class CompaniesController {
     const { query, sortKey = "id", sortOrder = "asc"} = req.query;
     const repository = await getRepository(Companies);
     const authUser = req.user as Users;
+
     const companiesQuery = repository
       .createQueryBuilder("companies")
       .where(
         `companies.is_deleted = :isDeleted ${query ? "AND (name ~* :query OR description ~* :query OR code ~* :query)" : ""}`,
         { isDeleted: false, query }
       );
-
     if (authUser.isAdmin()) {
       companiesQuery.innerJoinAndSelect(
         "companies.organization", "organization", "organization.id = :organization",
@@ -38,8 +37,19 @@ export default class CompaniesController {
 
   public static async get(req: Request, res: Response) {
     const { id } = req.params;
+    const authUser = req.user as Users;
+
     const repository = await getRepository(Companies);
-    const company = await repository.findOne(id);
+    const companyQuery = repository
+      .createQueryBuilder("companies")
+      .where("companies.id = :id", {id});
+    if (authUser.isAdmin()) {
+      companyQuery.innerJoin(
+        "companies.organization", "org", "org.id = :org", { org: authUser.getOrganizationId() }
+      );
+    }
+
+    const company = await companyQuery.getOne();
     if (!company) {
       return res.status(404).json({
         errors: {
@@ -54,6 +64,8 @@ export default class CompaniesController {
   public static async update(req: Request, res: Response) {
     const { id } = req.params;
     const data = req.body;
+    const authUser = req.user as Users;
+
     const allowedFields = [
       "code", "status", "name", "address1", "address2", "city", "state", "country", "zipCode", "zipCodeExt", "telAreaCode", "telPrefix", "telNumber",
       "licenseNumber", "faxAreaCode", "faxPrefix", "faxNumber", "defaultWithholdingStateCode",
@@ -64,7 +76,15 @@ export default class CompaniesController {
 
     let company;
     if (id) {
-      company = await repository.findOne(id);
+      const companyQuery = repository
+        .createQueryBuilder("companies")
+        .where("companies.id = :id", {id});
+      if (authUser.isAdmin()) {
+        companyQuery.innerJoin(
+          "companies.organization", "org", "org.id = :org", { org: authUser.getOrganizationId() }
+        );
+      }
+      company = await companyQuery.getOne();
       if (!company) {
         return res.status(404).json({
           errors: {
@@ -72,10 +92,10 @@ export default class CompaniesController {
           },
         });
       }
+
       company.set(companyData);
     } else {
       let { organization } = req.query;
-      const authUser = req.user as Users;
       if (authUser.isAdmin()) {
         organization = authUser.getOrganizationId();
       } else {
@@ -107,15 +127,52 @@ export default class CompaniesController {
     }
   }
 
-  public static async delete(req: Request, res: Response) {
+  public static async updateStatus(req: Request, res: Response) {
     const { id } = req.params;
+    const { status } = req.body;
+    const authUser = req.user as Users;
 
     const repository = await getRepository(Companies);
-    const result = await repository
+    const resultQuery = repository
       .createQueryBuilder()
+      .from(Companies, "companies")
       .update(Companies)
-      .set({ status: STATUSES.inactive })
-      .where("id = :id", { id})
+      .set({ status })
+      .where("id = :id", { id });
+    if (authUser.isAdmin()) {
+      resultQuery.andWhere("organization = :orgId", {orgId: authUser.getOrganizationId()});
+    }
+
+    const result = await resultQuery
+      .returning(["id"])
+      .execute();
+
+    if (result.raw.length) {
+      res.status(204).json();
+    } else {
+      res.status(404).json({
+        errors: {
+          message: "No Company found",
+        },
+      });
+    }
+  }
+
+  public static async delete(req: Request, res: Response) {
+    const { id } = req.params;
+    const authUser = req.user as Users;
+
+    const repository = await getRepository(Companies);
+    const resultQuery = repository
+      .createQueryBuilder()
+      .from(Companies, "companies")
+      .update(Companies)
+      .set({ isDeleted: true })
+      .where("id = :id", { id});
+    if (authUser.isAdmin()) {
+      resultQuery.andWhere("organization = :orgId", {orgId: authUser.getOrganizationId()});
+    }
+    const result = await resultQuery
       .returning(["id"])
       .execute();
 

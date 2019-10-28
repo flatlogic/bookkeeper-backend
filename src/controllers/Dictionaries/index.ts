@@ -2,6 +2,7 @@ import changeCase from "change-case";
 import { Request, Response } from "express";
 
 import Companies from "../../models/Companies";
+import Organizations from "../../models/Organizations";
 import Roles from "../../models/Roles";
 import Users from "../../models/Users";
 import { getRepository } from "../../services/db";
@@ -41,7 +42,9 @@ export default class DictionariesController {
         { organization: authUser.getOrganizationId() }
       );
     }
-    const items = await itemsQuery.getMany();
+    const items = await itemsQuery
+      .orderBy(changeCase.snakeCase("roles.name"), "ASC")
+      .getMany();
 
     res.json(items);
   }
@@ -59,7 +62,26 @@ export default class DictionariesController {
         { organization: authUser.getOrganizationId() }
       );
     }
-    const items = await itemsQuery.getMany();
+    const items = await itemsQuery
+      .orderBy(changeCase.snakeCase("companies.name"), "ASC")
+      .getMany();
+
+    res.json(items);
+  }
+
+  public static async organizations(req: Request, res: Response) {
+    const authUser = req.user as Users;
+    const repository = await getRepository(Organizations);
+
+    const itemsQuery = repository
+      .createQueryBuilder("organizations");
+
+    if (authUser.isAdmin()) {
+      itemsQuery.where("id = :id", {id: authUser.getOrganizationId()});
+    }
+    const items = await itemsQuery
+      .orderBy(changeCase.snakeCase("organizations.name"), "ASC")
+      .getMany();
 
     res.json(items);
   }

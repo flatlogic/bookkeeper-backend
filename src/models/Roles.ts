@@ -1,5 +1,5 @@
 import { IsNotEmpty } from "class-validator";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 import Organizations from "./Organizations";
 
 @Entity()
@@ -22,7 +22,11 @@ export default class Roles {
   public pJobCost: string[];
 
   @ManyToOne(() => Organizations, (org) => org.roles, {onDelete: "CASCADE"})
+  @JoinColumn({ name: "organizationId" })
   public organization: Organizations|number;
+
+  @Column({ nullable: true })
+  public organizationId: number;
 
   constructor(data: any) {
     this.set(data);

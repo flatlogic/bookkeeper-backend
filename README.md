@@ -7,3 +7,8 @@
 #### Run any command in Postgres container
 `docker exec -it cp_for_web_postgres psql -U postgres -c "create database cp_master"
 ` 
+
+#### Go to container
+`
+docker exec -it cp_for_web_postgres /bin/bash
+`

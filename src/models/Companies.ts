@@ -97,8 +97,11 @@ export default class Companies {
   public users: Users[];
 
   @ManyToOne(() => Organizations, (organization) => organization.companies)
-  @JoinColumn({ name: "organization_id" })
+  @JoinColumn({ name: "organizationId" })
   public organization: Organizations;
+
+  @Column({ nullable: true })
+  public organizationId: number;
 
   constructor(data: any) {
     this.set(data);

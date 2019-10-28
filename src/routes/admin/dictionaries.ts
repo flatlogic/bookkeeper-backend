@@ -6,4 +6,5 @@ export default ( app: express.Application ) => {
   app.get( "/api/admin/dictionaries/users", DictionariesController.users);
   app.get( "/api/admin/dictionaries/roles", DictionariesController.roles);
   app.get( "/api/admin/dictionaries/companies", DictionariesController.companies);
+  app.get( "/api/admin/dictionaries/organizations", DictionariesController.organizations);
 };

@@ -37,6 +37,15 @@ export default class OrganizationsController {
 
   public static async get(req: Request, res: Response) {
     const { id } = req.params;
+    const authUser = req.user as Users;
+    if (authUser.isAdmin() && +authUser.getOrganizationId() !== +id) {
+      return res.status(403).json({
+        errors: {
+          message: "User doesn't have access to this organization",
+        },
+      });
+    }
+
     const repository = await getRepository(Organizations);
     const organization = await repository.findOne({
       where: {
@@ -59,8 +68,16 @@ export default class OrganizationsController {
   public static async update(req: Request, res: Response) {
     const { id } = req.params;
     const data = req.body;
-    const repository = await getRepository(Organizations);
+    const authUser = req.user as Users;
+    if (id && authUser.isAdmin() && +authUser.getOrganizationId() !== +id) {
+      return res.status(403).json({
+        errors: {
+          message: "User doesn't have access to this organization",
+        },
+      });
+    }
 
+    const repository = await getRepository(Organizations);
     let organization;
     if (id) {
       organization = await repository.findOne({
@@ -117,6 +134,15 @@ export default class OrganizationsController {
 
   public static async delete(req: Request, res: Response) {
     const { id } = req.params;
+    const authUser = req.user as Users;
+    if (id && authUser.isAdmin() && +authUser.getOrganizationId() !== +id) {
+      return res.status(403).json({
+        errors: {
+          message: "User doesn't have access to this organization",
+        },
+      });
+    }
+
     const repository = await getRepository(Organizations);
     const result = await repository
       .createQueryBuilder()
