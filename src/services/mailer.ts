@@ -33,6 +33,7 @@ export default class Mailer {
         },
       };
     }
+    console.log('Mailer config', mailConfig);
     Mailer.transporter = nodemailer.createTransport(mailConfig);
   }
 

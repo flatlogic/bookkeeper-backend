@@ -17,3 +17,9 @@ docker exec -it cp_for_web_postgres /bin/bash
 We use https://ethereal.email service to test sending emails on the local machine.
 To have it working create an account in the https://ethereal.email and setup env variables in .env file
 When new email is sent just go to https://ethereal.email/messages and see the email
+
+
+#### Heroku debug
+`
+heroku logs -a cp4web-be --tail
+`
