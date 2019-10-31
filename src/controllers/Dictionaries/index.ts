@@ -1,6 +1,7 @@
 import changeCase from "change-case";
 import { Request, Response } from "express";
 
+import {BASE_ROLES} from "../../constants";
 import Companies from "../../models/Companies";
 import Organizations from "../../models/Organizations";
 import Roles from "../../models/Roles";
@@ -14,8 +15,8 @@ export default class DictionariesController {
     const itemsQuery = repository
       .createQueryBuilder("users")
       .where(
-        "users.is_deleted = :isDeleted",
-        { isDeleted: false },
+        "users.is_deleted = :isDeleted AND (NOT (:role = ANY(roles)) OR roles IS NULL)",
+        { isDeleted: false, role: BASE_ROLES.superUser },
       )
       .orderBy(changeCase.snakeCase("first_name"), "ASC");
 
@@ -24,6 +25,8 @@ export default class DictionariesController {
         "users.organizations", "uOrg", "uOrg.id = :organization",
         { organization: authUser.getOrganizationId() }
       );
+    } else {
+      itemsQuery.leftJoinAndSelect("users.organizations", "uOrg");
     }
     const items = await itemsQuery.getMany();
 

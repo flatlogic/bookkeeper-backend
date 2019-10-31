@@ -1,8 +1,19 @@
 import bcrypt from "bcrypt";
 import { IsNotEmpty } from "class-validator";
+import crypto from "crypto";
 import get from "lodash/get";
 import uniqArray from "lodash/uniq";
-import { Column, Entity, In, JoinTable, ManyToMany, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
+import {
+  Column,
+  Entity,
+  In,
+  JoinColumn,
+  JoinTable,
+  ManyToMany,
+  OneToMany,
+  PrimaryGeneratedColumn,
+  Unique
+} from "typeorm";
 
 import { BASE_ROLES, STATUSES } from "../constants";
 import { getRepository } from "../services/db";
@@ -56,6 +67,9 @@ export default class Users {
 
   @Column({name: "last_login", precision: 6, type: "timestamptz", nullable: true})
   public lastLogin: Date;
+
+  @Column({name: "password_token", nullable: true, select: false})
+  public passwordToken: string;
 
   @ManyToMany(() => Organizations, (organization) => organization.users)
   @JoinTable({name: "users_organizations"})
@@ -163,8 +177,17 @@ export default class Users {
     }
   }
 
+  public setPasswordToken() {
+    const token = crypto.randomBytes(48).toString("hex");
+    return this.passwordToken = token;
+  }
+
   public isAdmin() {
     return this.roles.includes("ADMINISTRATOR");
+  }
+
+  public getOrganization() {
+    return get(this, "organizations.0");
   }
 
   public getOrganizationId() {

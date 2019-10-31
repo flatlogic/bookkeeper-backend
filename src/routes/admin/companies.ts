@@ -7,6 +7,7 @@ import requestErrorValidator, { requestParams } from "../../middleware/validator
 export default ( app: express.Application ) => {
   // TODO: add request validators
   app.get( "/api/admin/companies", CompaniesController.list);
+  app.get( "/api/admin/companies/check-code", requestErrorValidator, CompaniesController.checkCodeAvailable);
   app.get( "/api/admin/companies/:id", requestParams.hasId, requestErrorValidator, CompaniesController.get);
   app.post( "/api/admin/companies", CompaniesController.update);
   app.put("/api/admin/companies/:id", requestParams.hasId, requestErrorValidator, CompaniesController.update);

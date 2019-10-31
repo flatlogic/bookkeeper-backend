@@ -42,6 +42,12 @@ export default ( app: express.Application ) => {
     requestErrorValidator,
     UsersController.setRoles
   );
+  app.post(
+    "/api/admin/users/:id/send-invitation",
+    requestParams.hasId,
+    requestErrorValidator,
+    UsersController.sendInvitation,
+  );
   app.delete(
     "/api/admin/users/:id",
     UsersController.delete

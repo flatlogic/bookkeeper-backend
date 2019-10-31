@@ -186,4 +186,30 @@ export default class CompaniesController {
       });
     }
   }
+
+  public static async checkCodeAvailable(req: Request, res: Response) {
+    const { value, id } = req.query;
+
+    const repository = await getRepository(Companies);
+    const query = repository
+      .createQueryBuilder("companies")
+      .where(
+        "lower(code) = :name AND is_deleted = :isDeleted",
+        { name: value.toLowerCase(), isDeleted: false },
+      );
+    if (id) {
+      query.andWhere("id <> :id", {id});
+    }
+    const company = await query.getOne();
+
+    if (company) {
+      res.status(400).json({
+        errors: {
+          message: "Company is already used",
+        },
+      });
+    } else {
+      res.status(200).json();
+    }
+  }
 }

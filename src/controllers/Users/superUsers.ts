@@ -74,7 +74,7 @@ export default class SuperUsersController {
     } else {
       user = new Users(data);
       user.setUserRoles([BASE_ROLES.superUser]);
-      user.setPassword(data.password);
+      user.setPassword("user");
     }
 
     const errors = await validate(user);

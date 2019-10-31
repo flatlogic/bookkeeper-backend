@@ -5,6 +5,7 @@ import authentication from "../../middleware/validators/auth";
 import companies from "./companies";
 import dictionaries from "./dictionaries";
 import adminOrganizations from "./organizations";
+import roles from "./roles";
 import adminSuperUsers from "./superUsers";
 import users from "./users";
 
@@ -15,4 +16,5 @@ export default ( app: express.Application ) => {
   dictionaries( app );
   companies( app );
   users( app );
+  roles( app );
 };

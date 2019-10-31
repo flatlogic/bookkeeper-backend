@@ -7,9 +7,15 @@ import requestErrorValidator from "../middleware/validators/request";
 export default ( app: express.Application ) => {
   app.post( "/api/login", authValidator.login, requestErrorValidator, AuthenticationController.login);
   app.post(
-    "/api/set-password",
+    "/api/password/set-password",
     authValidator.setPassword,
     requestErrorValidator,
     AuthenticationController.setPassword
+  );
+  app.post(
+    "/api/password/reset-password",
+    authValidator.resetPassword,
+    requestErrorValidator,
+    AuthenticationController.resetPassword
   );
 };

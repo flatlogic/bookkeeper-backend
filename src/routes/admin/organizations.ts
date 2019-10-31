@@ -10,6 +10,7 @@ import requestErrorValidator, { requestParams } from "../../middleware/validator
 export default ( app: express.Application ) => {
   app.all( "/api/admin/organizations/*", authentication([BASE_ROLES.superUser, BASE_ROLES.admin]));
   app.get( "/api/admin/organizations", OrganizationsController.list);
+  app.get( "/api/admin/organizations/check-name", requestErrorValidator, OrganizationsController.checkNameAvailable);
   app.get( "/api/admin/organizations/:id", requestParams.hasId, requestErrorValidator, OrganizationsController.get);
   app.post( "/api/admin/organizations", OrganizationsController.update);
   app.put(

@@ -1,3 +1,4 @@
+import changeCase from "change-case";
 import { validate } from "class-validator";
 import { Request, Response } from "express";
 
@@ -7,24 +8,33 @@ import { getRepository } from "../../services/db";
 
 export default class RolesController {
   public static async list(req: Request, res: Response) {
-    const { orgId } = req.params;
+    const authUser = req.user as Users;
+
+    const { query, sortKey = "id", sortOrder = "asc" } = req.query;
     const repository = await getRepository(Roles);
-    const roles = await repository.find({
-      where: {
-        organization: orgId,
-      },
-    });
+    const rolesQuery = repository
+      .createQueryBuilder("roles")
+      .where(
+        `roles.organizationId = :orgId
+        ${query ? "AND (name ~* :query OR description ~* :query)" : ""}`,
+        { orgId: authUser.getOrganizationId(), query }
+      );
+    if (sortKey && sortOrder) {
+      rolesQuery.orderBy(changeCase.snakeCase(`roles.${sortKey}`), sortOrder.toUpperCase());
+    }
+    const roles = await rolesQuery.getMany();
 
     res.json(roles);
   }
 
   public static async get(req: Request, res: Response) {
-    const { id, orgId } = req.params;
+    const { id } = req.params;
+    const authUser = req.user as Users;
     const repository = await getRepository(Roles);
     const role = await repository.findOne({
       where: {
         id,
-        organization: orgId,
+        organizationId: authUser.getOrganizationId(),
       },
     });
     if (!role) {
@@ -39,7 +49,8 @@ export default class RolesController {
   }
 
   public static async update(req: Request, res: Response) {
-    const { id, orgId } = req.params;
+    const { id } = req.params;
+    const authUser = req.user as Users;
     const data = req.body;
     const repository = await getRepository(Roles);
 
@@ -48,6 +59,7 @@ export default class RolesController {
       role = await repository.findOne({
         where: {
           id,
+          organizationId: authUser.getOrganizationId(),
         },
       });
       if (!role) {
@@ -59,7 +71,7 @@ export default class RolesController {
       }
     } else {
       role = new Roles({});
-      role.organization = +orgId;
+      data.organization = +authUser.getOrganizationId();
     }
     await role.set(data);
 
@@ -78,45 +90,17 @@ export default class RolesController {
     }
   }
 
-  // public static async updateStatus(req: Request, res: Response) {
-  //   const { id } = req.params;
-  //   const { status } = req.body;
-  //   const authUser = req.user as Users;
-  //
-  //   const repository = await getRepository(Roles);
-  //   const resultQuery = repository
-  //     .createQueryBuilder()
-  //     .from(Roles, "roles")
-  //     .update(Roles)
-  //     .set({ status })
-  //     .where("id = :id", { id });
-  //   if (authUser.isAdmin()) {
-  //     resultQuery.andWhere("organization = :orgId", {orgId: authUser.getOrganizationId()});
-  //   }
-  //
-  //   const result = await resultQuery
-  //     .returning(["id"])
-  //     .execute();
-  //
-  //   if (result.raw.length) {
-  //     res.status(204).json();
-  //   } else {
-  //     res.status(404).json({
-  //       errors: {
-  //         message: "No Role found",
-  //       },
-  //     });
-  //   }
-  // }
-
   public static async delete(req: Request, res: Response) {
-    const { id, orgId } = req.params;
+    const authUser = req.user as Users;
+    const { id } = req.params;
 
     const repository = await getRepository(Roles);
-    const result = await repository
+    const resultQuery = repository
       .createQueryBuilder()
-      .update(Roles)
-      .where("id = :id AND organization = :orgId", { id, orgId })
+      .from(Roles, "roles")
+      .delete()
+      .where("id = :id AND organizationId = :orgId", { id, orgId: authUser.getOrganizationId() });
+    const result = await resultQuery
       .returning(["id"])
       .execute();
 

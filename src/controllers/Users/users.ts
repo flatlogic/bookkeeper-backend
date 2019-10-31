@@ -5,6 +5,7 @@ import { Request, Response } from "express";
 import { BASE_ROLES } from "../../constants";
 import Users from "../../models/Users";
 import { getRepository } from "../../services/db";
+import Mailer from "../../services/mailer";
 
 export default class UsersController {
   public static async list(req: Request, res: Response) {
@@ -20,7 +21,7 @@ export default class UsersController {
       .createQueryBuilder("users")
       .where(
         `(NOT (:role = ANY(roles)) OR roles IS NULL) AND users.is_deleted = :isDeleted
-        ${query ? "AND (first_name ~* :query OR last_name ~* :query)" : ""}`,
+        ${query ? "AND (first_name ~* :query OR last_name ~* :query OR username ~* :query)" : ""}`,
         { role: BASE_ROLES.superUser, isDeleted: false, query }
       );
     if (company) {
@@ -94,7 +95,7 @@ export default class UsersController {
           id,
           isDeleted: false,
         },
-        relations: ["companyRoles"],
+        relations: ["companyRoles", "organizations"],
       });
       if (!user || user.getOrganizationId() !== authUser.getOrganizationId()) {
         return res.status(404).json({
@@ -117,8 +118,9 @@ export default class UsersController {
       }
       user = new Users({});
       userData = {...userData, organization};
-      user.setPassword("user");
+      user.setPasswordToken();
     }
+
     await user.set(userData);
 
     const errors = await validate(user);
@@ -225,16 +227,20 @@ export default class UsersController {
   }
 
   public static async checkUsernameAvailable(req: Request, res: Response) {
-    const { value } = req.query;
+    const { value, id } = req.query;
 
     const repository = await getRepository(Users);
-    const user = await repository.findOne({
-      where: {
-        username: value,
-        isDeleted: false,
-      },
-    });
-    console.log(user);
+    const query = repository
+      .createQueryBuilder("users")
+      .where(
+        "(lower(username) = :name OR lower(email) = :name) AND is_deleted = :isDeleted",
+        { name: value.toLowerCase(), isDeleted: false },
+      );
+    if (id) {
+      query.andWhere("id <> :id", {id});
+    }
+    const user = await query.getOne();
+
     if (user) {
       res.status(400).json({
         errors: {
@@ -243,6 +249,50 @@ export default class UsersController {
       });
     } else {
       res.status(200).json();
+    }
+  }
+
+  public static async sendInvitation(req: Request, res: Response) {
+    const { id } = req.params;
+    const repository = await getRepository(Users);
+    const user = await repository.findOne({
+      where: {
+        id,
+      },
+      relations: ["organizations"],
+    });
+
+    if (!user) {
+      res.status(404).json({
+        errors: {
+          message: "User not found",
+        },
+      });
+    }
+
+    try {
+      const url = process.env.UI_BASE_URL + process.env.UI_SET_PASSWORD_URL;
+      user.setPasswordToken();
+      await repository.save(user);
+
+      await Mailer.sendTemplate(
+        user.email,
+        "CP for Web Invitation",
+        "activation",
+        {
+          ...user,
+          link: `${url}?token=${user.passwordToken}`,
+          organizationName: user.getOrganization().name,
+        },
+      );
+      res.status(200).json();
+    } catch (e) {
+      console.error(e);
+      res.status(500).json({
+        errors: {
+          message: "Cannot send email to the User",
+        },
+      });
     }
   }
 }

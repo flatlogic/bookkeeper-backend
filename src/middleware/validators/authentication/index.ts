@@ -6,6 +6,11 @@ export default {
     body("password", "\"password\" cannot be empty").exists(),
   ],
   setPassword: [
-    query("token", "\"token\" cannot be empty").exists(),
+    body("token", "\"token\" cannot be empty").exists(),
+    body("password", "\"password\" cannot be empty").exists(),
+    body("repeatPassword", "\"repeatPassword\" cannot be empty").exists(),
+  ],
+  resetPassword: [
+    body("username", "\"username\" cannot be empty").exists(),
   ],
 };

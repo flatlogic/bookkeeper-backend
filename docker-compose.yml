@@ -10,5 +10,19 @@ services:
       POSTGRES_USER: postgres
     volumes:
       - my_dbdata:/var/lib/postgresql/data
+#  smtp:
+#    image: "namshi/docker-smtp"
+#    container_name: "cp_for_web_smtp"
+#    ports:
+#      - "25:25"
+#    environment:
+#      SMARTHOST_ADDRESS: mail.mysmtp.com
+#      SMARTHOST_PORT: 587
+#      SMARTHOST_USER: myuser
+#      SMARTHOST_PASSWORD: secret
+#      SMARTHOST_ALIASES: "*.mysmtp.com"
+
+
+
 volumes:
   my_dbdata:

@@ -1,6 +1,7 @@
 import changeCase from "change-case";
 import { validate } from "class-validator";
 import { Request, Response } from "express";
+import { Not } from "typeorm";
 
 import Organizations from "../../models/Organizations";
 import Roles from "../../models/Roles";
@@ -160,6 +161,32 @@ export default class OrganizationsController {
           message: "Organization not found",
         },
       });
+    }
+  }
+
+  public static async checkNameAvailable(req: Request, res: Response) {
+    const { value, id } = req.query;
+
+    const repository = await getRepository(Organizations);
+    const query = repository
+      .createQueryBuilder("organizations")
+      .where(
+        "lower(name) = :name AND is_deleted = :isDeleted",
+        { name: value.toLowerCase(), isDeleted: false },
+      );
+    if (id) {
+      query.andWhere("id <> :id", {id});
+    }
+    const organization = await query.getOne();
+
+    if (organization) {
+      res.status(400).json({
+        errors: {
+          message: "Organization name is already used",
+        },
+      });
+    } else {
+      res.status(200).json();
     }
   }
 }

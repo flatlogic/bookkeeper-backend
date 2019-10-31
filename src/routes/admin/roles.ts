@@ -1,7 +1,6 @@
 import * as express from "express";
 
 import RolesController from "../../controllers/Users/roles";
-import superUsersValidator from "../../middleware/validators/admin/superUsers/superUsers";
 import requestErrorValidator, { requestParams } from "../../middleware/validators/request";
 
 export default ( app: express.Application ) => {

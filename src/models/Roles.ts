@@ -1,5 +1,7 @@
 import { IsNotEmpty } from "class-validator";
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
+
+import {getRepository} from "../services/db";
 import Organizations from "./Organizations";
 
 @Entity()
@@ -32,8 +34,26 @@ export default class Roles {
     this.set(data);
   }
 
-  public set(data: any = {}) {
+  public async set(data: any = {}) {
     this.name = data.name;
     this.description = data.description;
+
+    this.setPermissions(data);
+    if (data.organization) {
+      await this.setOrganization(data.organization);
+    }
+  }
+
+  public setPermissions(data: any = {}) {
+    this.pGeneralLedger = data.pGeneralLedger;
+    this.pJobCost = data.pJobCost;
+  }
+
+  public async setOrganization(id: string|number) {
+    const repository = await getRepository(Organizations);
+    const result = await repository.findOne(id);
+    if (result) {
+      this.organization = result;
+    }
   }
 }
