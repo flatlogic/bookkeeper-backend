@@ -18,7 +18,7 @@ export default class Mailer {
         },
         tls: {
           rejectUnauthorized: false,
-          ciphers: process.env.SMTP_USE_TLS ? 'SSLv3' : undefined
+          ciphers: process.env.SMTP_USE_TLS ? "SSLv3" : undefined
         },
         requireTLS: process.env.SMTP_USE_TLS ? true : undefined
       } as any;

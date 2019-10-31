@@ -229,6 +229,14 @@ export default class UsersController {
   public static async checkUsernameAvailable(req: Request, res: Response) {
     const { value, id } = req.query;
 
+    if (!value) {
+      return res.status(400).json({
+        errors: {
+          message: "Value cannot be empty",
+        },
+      });
+    }
+
     const repository = await getRepository(Users);
     const query = repository
       .createQueryBuilder("users")
