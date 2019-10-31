@@ -61,7 +61,6 @@ export default class Mailer {
     return new Promise((res, rej) => {
       Mailer.transporter.sendMail(message, (err: any, info: any) => {
         if (err) {
-          console.error(message, err);
           rej(err);
         } else {
           res(info);
