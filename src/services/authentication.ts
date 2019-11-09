@@ -21,6 +21,7 @@ export const initStrategies = (passport: PassportStatic) => {
       .addSelect("users.roles")
       .leftJoinAndSelect("users.companyRoles", "uCmpRoles")
       .leftJoinAndSelect("users.organizations", "organizations")
+      .leftJoinAndSelect("users.lastCompanySelected", "lastCompanySelected")
       .leftJoinAndSelect("uCmpRoles.role", "cmpRole")
       .where("users.id = :id AND users.is_deleted = :isDeleted", {isDeleted: false, id: jwtPayload.id})
       .getOne();

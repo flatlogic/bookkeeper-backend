@@ -8,6 +8,7 @@ import { getRepository } from "../../services/db";
 export default class AccountsBudgetController {
   public static async setBudget(req: Request, res: Response) {
     const { id: accountId } = req.params;
+    const { type } = req.query;
     const { budget } = req.body;
     const accountRepository = await getRepository(Accounts);
     const budgetRepository = await getRepository(Budget);
@@ -21,30 +22,17 @@ export default class AccountsBudgetController {
       });
     }
 
-    const budgetData = {
-      period1Budget: budget[0],
-      period2Budget: budget[1],
-      period3Budget: budget[2],
-      period4Budget: budget[3],
-      period5Budget: budget[4],
-      period6Budget: budget[5],
-      period7Budget: budget[6],
-      period8Budget: budget[7],
-      period9Budget: budget[8],
-      period10Budget: budget[9],
-      period11Budget: budget[10],
-      period12Budget: budget[11],
-    };
     let budgetEntity = await budgetRepository.findOne({
       where: {
         account: accountId,
       },
+      relations: ["account"],
     });
     if (budgetEntity) {
-      budgetEntity.set(budgetData);
+      budgetEntity.set(budget);
     } else {
       budgetEntity = new Budget({
-        ...budgetData,
+        ...budget,
         account,
       });
     }

@@ -1,7 +1,8 @@
-import { IsIn, IsNotEmpty, ValidateIf  } from "class-validator";
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { IsIn, IsNotEmpty, ValidateIf } from "class-validator";
+import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 import Companies from "./Companies";
+import GeneralLedgerAccountsBudget from "./GeneralLedgerAccountsBudget";
 
 export const RESTRICTIONS = {
   njt: "Use with NON-JOB Transactions only",
@@ -53,11 +54,20 @@ export default class Accounts {
   @Column({type: "decimal", precision: 5, scale: 2, name: "end_year_adjustment_budget", nullable: true})
   public endYearAdjustmentBudget: number;
 
-  @Column({nullable: false, default: false})
+  @Column({name: "is_subaccount", nullable: false, default: false})
   public isSubAccount: boolean = false;
 
   @ManyToOne(() => Accounts)
+  @JoinColumn({name: "parent_id"})
   public parent: Accounts;
+
+  @OneToOne(() => GeneralLedgerAccountsBudget)
+  public budget: GeneralLedgerAccountsBudget;
+
+  @IsNotEmpty()
+  @ManyToOne(() => Companies)
+  @JoinColumn({name: "company_id"})
+  public company: Companies;
 
   // TODO: Will be used when we add Auth middleware to fetch Current User + Current Company from the request
   // @IsNotEmpty()
@@ -82,5 +92,9 @@ export default class Accounts {
     this.type = type;
     this.parent = parent;
     this.isSubAccount = isSubAccount;
+
+    if (data.company) {
+      this.company = data.company;
+    }
   }
 }

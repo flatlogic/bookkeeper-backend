@@ -10,80 +10,83 @@ export default class GeneralLedger {
   @PrimaryGeneratedColumn()
   public id: number;
 
-  @Column({name: "period_1_name", nullable: false})
-  public period1Name: string;
+  @Column({name: "period_1_month", nullable: false})
+  public period1Month: string;
 
   @Column({name: "period_1_status", nullable: false})
   public period1Status: number = STATUSES.active;
 
-  @Column({name: "period_2_name", nullable: false})
-  public period2Name: string;
+  @Column({name: "period_2_month", nullable: false})
+  public period2Month: string;
 
   @Column({name: "period_2_status", nullable: false})
   public period2Status: number = STATUSES.active;
 
-  @Column({name: "period_3_name", nullable: false})
-  public period3Name: string;
+  @Column({name: "period_3_month", nullable: false})
+  public period3Month: string;
 
   @Column({name: "period_3_status", nullable: false})
   public period3Status: number = STATUSES.active;
 
-  @Column({name: "period_4_name", nullable: false})
-  public period4Name: string;
+  @Column({name: "period_4_month", nullable: false})
+  public period4Month: string;
 
   @Column({name: "period_4_status", nullable: false})
   public period4Status: number = STATUSES.active;
 
-  @Column({name: "period_5_name", nullable: false})
-  public period5Name: string;
+  @Column({name: "period_5_month", nullable: false})
+  public period5Month: string;
 
   @Column({name: "period_5_status", nullable: false})
   public period5Status: number = STATUSES.active;
 
-  @Column({name: "period_6_name", nullable: false})
-  public period6Name: string;
+  @Column({name: "period_6_month", nullable: false})
+  public period6Month: string;
 
   @Column({name: "period_6_status", nullable: false})
   public period6Status: number = STATUSES.active;
 
-  @Column({name: "period_7_name", nullable: false})
-  public period7Name: string;
+  @Column({name: "period_7_month", nullable: false})
+  public period7Month: string;
 
   @Column({name: "period_7_status", nullable: false})
   public period7Status: number = STATUSES.active;
 
-  @Column({name: "period_8_name", nullable: false})
-  public period8Name: string;
+  @Column({name: "period_8_month", nullable: false})
+  public period8Month: string;
 
   @Column({name: "period_8_status", nullable: false})
   public period8Status: number = STATUSES.active;
 
-  @Column({name: "period_9_name", nullable: false})
-  public period9Name: string;
+  @Column({name: "period_9_month", nullable: false})
+  public period9Month: string;
 
   @Column({name: "period_9_status", nullable: false})
   public period9Status: number = STATUSES.active;
 
-  @Column({name: "period_10_name", nullable: false})
-  public period10Name: string;
+  @Column({name: "period_10_month", nullable: false})
+  public period10Month: string;
 
   @Column({name: "period_10_status", nullable: false})
   public period10Status: number = STATUSES.active;
 
-  @Column({name: "period_11_name", nullable: false})
-  public period11Name: string;
+  @Column({name: "period_11_month", nullable: false})
+  public period11Month: string;
 
   @Column({name: "period_11_status", nullable: false})
   public period11Status: number = STATUSES.active;
 
-  @Column({name: "period_12_name", nullable: false})
-  public period12Name: string;
+  @Column({name: "period_12_month", nullable: false})
+  public period12Month: string;
 
   @Column({name: "period_12_status", nullable: false})
   public period12Status: number = STATUSES.active;
 
   @Column({name: "current_fiscal_year", nullable: false})
   public currentFiscalYear: number;
+
+  @Column({name: "calendar_year_period_1", nullable: false})
+  public calendarYearPeriod1: number;
 
   @Column({name: "is_prior_fiscal_year_closed", nullable: false})
   public isPriorFiscalYearClosed: boolean = false;
@@ -108,25 +111,18 @@ export default class GeneralLedger {
   }
 
   public set(data: any = {}) {
-    const {
-      period1Name, period2Name, period3Name, period4Name, period5Name, period6Name, period7Name, period8Name,
-      period9Name, period10Name, period11Name, period12Name, currentFiscalYear, company,
-    }: any = data;
-
-    this.period1Name = period1Name;
-    this.period2Name = period2Name;
-    this.period3Name = period3Name;
-    this.period4Name = period4Name;
-    this.period5Name = period5Name;
-    this.period6Name = period6Name;
-    this.period7Name = period7Name;
-    this.period8Name = period8Name;
-    this.period9Name = period9Name;
-    this.period10Name = period10Name;
-    this.period11Name = period11Name;
-    this.period12Name = period12Name;
-    this.currentFiscalYear = currentFiscalYear;
-    this.company = company;
+    for (let i = 1; i <= 12; i++) {
+      // @ts-ignore
+      this[`period${i}Month`] = data[`period${i}Month`];
+      // @ts-ignore
+      this[`period${i}Status`] = data[`period${i}Status`];
+    }
+    this.currentFiscalYear = data.currentFiscalYear;
+    this.calendarYearPeriod1 = data.calendarYearPeriod1;
+    this.isPriorFiscalYearClosed = data.isPriorFiscalYearClosed;
+    this.retainedEarningsAccount = data.retainedEarningsAccount;
+    this.retainedEarningsSubAccount = data.retainedEarningsSubAccount;
+    this.company = data.company;
 
     if (!this.currentFiscalYearOpenedDate) {
       this.currentFiscalYearOpenedDate = new Date();

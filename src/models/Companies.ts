@@ -1,8 +1,9 @@
 import { Length, ValidateIf } from "class-validator";
-import {Column, Entity, JoinColumn, ManyToMany, ManyToOne, PrimaryGeneratedColumn, Unique} from "typeorm";
+import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
 
 import {getRepository} from "../services/db";
 import Organizations from "./Organizations";
+import UserCompanyRoles from "./UserCompanyRoles";
 import Users from "./Users";
 
 @Entity()
@@ -102,6 +103,9 @@ export default class Companies {
 
   @Column({ nullable: true })
   public organizationId: number;
+
+  @OneToMany(() => UserCompanyRoles, (companyRole) => companyRole.company, {cascade: true})
+  public roles: UserCompanyRoles[];
 
   constructor(data: any) {
     this.set(data);

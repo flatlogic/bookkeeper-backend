@@ -3,9 +3,12 @@ import * as express from "express";
 import SubAccountsController from "../controllers/Accounts/subAccounts";
 import accountsValidators from "../middleware/validators/accounts/accounts";
 import subAccountsValidators from "../middleware/validators/accounts/subAccounts";
+import authentication from "../middleware/validators/auth";
 import requestErrorValidator from "../middleware/validators/request";
 
 export default ( app: express.Application ) => {
+  app.all( "/api/subaccounts*", authentication([]));
+
   app.get( "/api/subaccounts", accountsValidators.list, requestErrorValidator, SubAccountsController.list);
   app.get( "/api/subaccounts/:id", accountsValidators.hasId, requestErrorValidator, SubAccountsController.get);
   app.post( "/api/subaccounts", subAccountsValidators.create, requestErrorValidator, SubAccountsController.update);

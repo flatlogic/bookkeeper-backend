@@ -15,8 +15,10 @@ export default class AuthenticationController {
       .createQueryBuilder("user")
       .addSelect("user.password")
       .addSelect("user.roles")
+      .leftJoinAndSelect("user.lastCompanySelected", "lastCompanySelected")
       .leftJoinAndSelect("user.companyRoles", "companyRoles")
       .leftJoinAndSelect("companyRoles.role", "companyRolesRole")
+      .leftJoinAndSelect("companyRoles.company", "companyRolesCompany")
       .where("username = :username OR email = :username", { username })
       .getOne();
 

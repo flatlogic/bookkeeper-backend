@@ -2,13 +2,21 @@ import { validate } from "class-validator";
 import { Request, Response } from "express";
 
 import GeneralLedger from "../../models/GeneralLedger";
+import Users from "../../models/Users";
 import dataMapper from "../../services/dataMapper";
 import { getRepository } from "../../services/db";
 
 export default class GeneralLedgerController {
   public static async get(req: Request, res: Response) {
+    const authUser = req.user as Users;
     const repository = await getRepository(GeneralLedger);
-    const generalLedger = await repository.findOne(); // TODO: Get related to current company
+    const generalLedger = await repository.findOne({
+      where: {
+        company: authUser.lastCompanySelected.id,
+      },
+      relations: ["retainedEarningsAccount", "retainedEarningsSubAccount"],
+    });
+
     if (!generalLedger) {
       return res.status(404).json({
         errors: {
@@ -22,22 +30,25 @@ export default class GeneralLedgerController {
 
   public static async update(req: Request, res: Response) {
     const data = req.body;
-    // TODO: will be moved to a Service with improved request - model mapper logic
-    const allowedFields = [
-      "period1Name", "period1Status", "period2Name", "period2Status", "period3Name", "period3Status",
-      "period4Name", "period4Status", "period5Name", "period5Status", "period6Name", "period6Status",
-      "period7Name", "period7Status", "period8Name", "period8Status", "period9Name", "period9Status",
-      "period10Name", "period10Status", "period11Name", "period11Status", "period12Name", "period12Status",
-      "currentFiscalYear", "currentBankBalance",
-    ];
-    const glData = dataMapper.map(data, allowedFields);
+    const authUser = req.user as Users;
     const repository = await getRepository(GeneralLedger);
-    let generalLedger = await repository.findOne(); // TODO: Get related to current company
+    let generalLedger = await repository.findOne({
+      where: {
+        company: authUser.lastCompanySelected.id,
+      },
+      relations: ["retainedEarningsAccount", "retainedEarningsSubAccount"],
+    });
 
     if (generalLedger) {
-      generalLedger.set(glData);
+      generalLedger.set(data);
     } else {
-      generalLedger = new GeneralLedger(glData);
+      generalLedger = new GeneralLedger(
+      {
+        ...data,
+        company: authUser.lastCompanySelected.id,
+        currentFiscalYear: 2019,
+      }, // @ToDo: Fix Me
+      );
     }
 
     const errors = await validate(generalLedger);

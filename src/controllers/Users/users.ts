@@ -3,7 +3,9 @@ import { validate } from "class-validator";
 import { Request, Response } from "express";
 
 import { BASE_ROLES } from "../../constants";
+import Companies from "../../models/Companies";
 import Users from "../../models/Users";
+import dataMapper from "../../services/dataMapper";
 import { getRepository } from "../../services/db";
 import Mailer from "../../services/mailer";
 
@@ -89,6 +91,20 @@ export default class UsersController {
 
     let user;
     let userData = data;
+
+    if (!authUser.roles.includes(BASE_ROLES.admin) && !authUser.roles.includes(BASE_ROLES.superUser)) {
+      const allowedFields = ["firstName", "lastName", "email", "phone"];
+      userData = dataMapper.map(data, allowedFields);
+
+      if (id && +id !== +authUser.id) {
+        return res.status(404).json({
+          errors: {
+            message: "User doesn't have needed permissions to edit another user",
+          },
+        });
+      }
+    }
+
     if (id) {
       user = await repository.findOne({
         where: {

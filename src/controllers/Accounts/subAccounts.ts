@@ -1,25 +1,28 @@
 import { validate } from "class-validator";
 import { Request, Response } from "express";
+import get from "lodash/get";
 
 import { STATUSES } from "../../constants";
 import Accounts from "../../models/Accounts";
+import Users from "../../models/Users";
 import { getRepository } from "../../services/db";
 
 export default class SubAccountsController {
   public static async list(req: Request, res: Response) {
-    const { fiscalYear } = req.query;
+    const authUser = req.user as Users;
     const repository = await getRepository(Accounts);
     const accounts = await repository
       .createQueryBuilder("accounts")
       .leftJoinAndSelect(
         "accounts.parent",
         "parent",
-        fiscalYear ? "parent.fiscalYear = :fiscalYear" : "",
-        { fiscalYear },
+        // fiscalYear ? "parent.fiscalYear = :fiscalYear" : "",
+        // { fiscalYear },
       )
-      .where("accounts.status = :status AND accounts.isSubAccount = :isSubAccount", {
+      .where("accounts.status = :status AND accounts.isSubAccount = :isSubAccount AND accounts.company_id = :company", {
         status: STATUSES.active,
         isSubAccount: true,
+        company: authUser.lastCompanySelected.id,
       })
       .getMany();
 
@@ -28,11 +31,13 @@ export default class SubAccountsController {
 
   public static async get(req: Request, res: Response) {
     const { id } = req.params;
+    const authUser = req.user as Users;
     const repository = await getRepository(Accounts);
     const account = await repository.findOne({
       where: {
         id,
         isSubAccount: true,
+        company: authUser.lastCompanySelected.id,
       },
       relations: ["parent"],
     });
@@ -50,12 +55,7 @@ export default class SubAccountsController {
   public static async update(req: Request, res: Response) {
     const { id } = req.params;
     const data = req.body;
-    const accountData = {
-      code: data.code,
-      description: data.description,
-      parent: data.parent,
-      isSubAccount: true,
-    };
+    const authUser = req.user as Users;
     const repository = await getRepository(Accounts);
 
     let account;
@@ -65,6 +65,7 @@ export default class SubAccountsController {
           id,
           isSubAccount: true,
         },
+        relations: ["company"],
       });
       if (!account) {
         return res.status(404).json({
@@ -73,9 +74,9 @@ export default class SubAccountsController {
           },
         });
       }
-      account.set(accountData);
+      account.set(data);
     } else {
-      account = new Accounts(accountData);
+      account = new Accounts({...data, isSubAccount: true, company: get(authUser, "lastCompanySelected")});
     }
 
     const errors = await validate(account);
@@ -95,6 +96,7 @@ export default class SubAccountsController {
 
   public static async delete(req: Request, res: Response) {
     const { id } = req.params;
+    const authUser = req.user as Users;
 
     // TODO: check if account doesn't have transactions
     // if (has transactions) {
@@ -106,7 +108,11 @@ export default class SubAccountsController {
       .createQueryBuilder()
       .update(Accounts)
       .set({ status: STATUSES.inactive })
-      .where("id = :id AND isSubAccount = :isSubAccount", { id, isSubAccount: true })
+      .where("id = :id AND isSubAccount = :isSubAccount AND company_id = :company", {
+        id,
+        isSubAccount: true,
+        company: authUser.lastCompanySelected.id,
+      })
       .returning(["id"])
       .execute();
 

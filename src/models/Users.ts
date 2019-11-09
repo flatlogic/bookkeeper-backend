@@ -1,5 +1,5 @@
 import bcrypt from "bcrypt";
-import { IsNotEmpty } from "class-validator";
+import { IsNotEmpty, ValidateNested } from "class-validator";
 import crypto from "crypto";
 import get from "lodash/get";
 import uniqArray from "lodash/uniq";
@@ -10,13 +10,16 @@ import {
   JoinColumn,
   JoinTable,
   ManyToMany,
+  ManyToOne,
   OneToMany,
+  OneToOne,
   PrimaryGeneratedColumn,
-  Unique
+  Unique,
 } from "typeorm";
 
 import { BASE_ROLES, STATUSES } from "../constants";
 import { getRepository } from "../services/db";
+import Addresses from "./Addresses";
 import Companies from "./Companies";
 import Organizations from "./Organizations";
 import UserCompanyRoles from "./UserCompanyRoles";
@@ -82,6 +85,10 @@ export default class Users {
   @OneToMany(() => UserCompanyRoles, (companyRole) => companyRole.user, {cascade: true})
   public companyRoles: UserCompanyRoles[];
 
+  @ManyToOne(() => Companies, {cascade: true, onDelete: "CASCADE"})
+  @JoinColumn({name: "last_company_selected"})
+  public lastCompanySelected: Companies;
+
   constructor(data: any) {
     if (!data) {
       return;
@@ -90,13 +97,13 @@ export default class Users {
   }
 
   public async set(data: any = {}) {
-    this.firstName = data.firstName;
-    this.lastName = data.lastName;
-    this.middleName = data.middleName;
-    this.suffix = data.suffix;
-    this.email = data.email;
-    this.phone = data.phone;
-    this.username = data.username;
+    this.firstName = get(data, "firstName", this.firstName);
+    this.lastName = get(data, "lastName", this.lastName);
+    this.middleName = get(data, "middleName", this.middleName);
+    this.suffix = get(data, "suffix", this.suffix);
+    this.email = get(data, "email", this.email);
+    this.phone = get(data, "phone", this.phone);
+    this.username = get(data, "username", this.username);
     this.status = data.status ? 1 : 0;
 
     if (data.organization) {
@@ -168,6 +175,10 @@ export default class Users {
     } else {
       this.companies = [];
     }
+
+    if (!this.lastCompanySelected) {
+      this.lastCompanySelected = this.companies && this.companies.length ? this.companies[0] : null;
+    } // @ToDO: reset lastCompanySelected if user has removed this company from the list
   }
 
   public setPassword(password: string) {
@@ -180,6 +191,22 @@ export default class Users {
   public setPasswordToken() {
     const token = crypto.randomBytes(48).toString("hex");
     return this.passwordToken = token;
+  }
+
+  public async setLastCompanySelected(companyId: string|number) {
+    const repository = await getRepository(Companies);
+    const company = await repository
+      .createQueryBuilder("companies")
+      .innerJoin(
+        "companies.roles", "roles", "roles.company = :company AND roles.user = :user",
+        { company: companyId, user: this.id }
+      ).getOne();
+
+    if (company) {
+      this.lastCompanySelected = company;
+    } else {
+      throw new Error("User doesn't have access to this company");
+    }
   }
 
   public isAdmin() {

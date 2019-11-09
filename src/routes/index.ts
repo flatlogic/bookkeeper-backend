@@ -2,8 +2,10 @@ import * as express from "express";
 import accounts from "./accounts";
 import admin from "./admin";
 import authentication from "./authentication";
+import customers from "./customers";
 import generalLedger from "./generalLedger";
 import subAccounts from "./subAccounts";
+import users from "./users";
 
 export const register = ( app: express.Application ) => {
   app.get( "/", ( req: any, res ) => {
@@ -15,4 +17,6 @@ export const register = ( app: express.Application ) => {
   generalLedger( app );
   admin( app );
   authentication( app );
+  users( app );
+  customers( app );
 };
