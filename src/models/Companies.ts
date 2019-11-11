@@ -1,7 +1,18 @@
-import { Length, ValidateIf } from "class-validator";
-import { Column, Entity, JoinColumn, ManyToMany, ManyToOne, OneToMany, PrimaryGeneratedColumn, Unique } from "typeorm";
+import { IsOptional, Length, ValidateIf, ValidateNested } from "class-validator";
+import {
+  Column,
+  Entity,
+  JoinColumn,
+  ManyToMany,
+  ManyToOne,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+  Unique
+} from "typeorm";
 
 import {getRepository} from "../services/db";
+import Addresses from "./Addresses";
 import Organizations from "./Organizations";
 import UserCompanyRoles from "./UserCompanyRoles";
 import Users from "./Users";
@@ -25,61 +36,61 @@ export default class Companies {
   public name: string;
 
   @Column({nullable: true})
-  public address1: string;
-
-  @Column({nullable: true})
-  public address2: string;
-
-  @Column({nullable: true})
-  public city: string;
-
-  @Length(2, 2)
-  @Column({nullable: true})
-  public state: string;
-
-  @Column({nullable: true})
   public country: string;
 
-  @Length(5, 5)
-  @Column({name: "zip_code", nullable: true})
-  public zipCode: string;
+  // @Column({nullable: true})
+  // public address1: string;
+  //
+  // @Column({nullable: true})
+  // public address2: string;
+  //
+  // @Column({nullable: true})
+  // public city: string;
+  //
+  // @Length(2, 2)
+  // @Column({nullable: true})
+  // public state: string;
+  //
+  // @Length(5, 5)
+  // @Column({name: "zip_code", nullable: true})
+  // public zipCode: string;
+  //
+  // @Length(4, 4)
+  // @Column({name: "zip_code_ext", nullable: true})
+  // public zipCodeExt: string;
+  //
+  // @ValidateIf((o) => o.telAreaCode || o.telPrefix || o.telNumber)
+  // @Length(3, 3)
+  // @Column({name: "tel_area_code", nullable: true})
+  // public telAreaCode: number;
+  //
+  // @ValidateIf((o) => o.telAreaCode || o.telPrefix || o.telNumber)
+  // @Length(3, 3)
+  // @Column({name: "tel_prefix", nullable: true})
+  // public telPrefix: number;
+  //
+  // @ValidateIf((o) => o.telAreaCode || o.telPrefix || o.telNumber)
+  // @Length(4, 4)
+  // @Column({name: "tel_number", nullable: true})
+  // public telNumber: number;
 
-  @Length(4, 4)
-  @Column({name: "zip_code_ext", nullable: true})
-  public zipCodeExt: string;
-
-  @ValidateIf((o) => o.telAreaCode || o.telPrefix || o.telNumber)
-  @Length(3, 3)
-  @Column({name: "tel_area_code", nullable: true})
-  public telAreaCode: number;
-
-  @ValidateIf((o) => o.telAreaCode || o.telPrefix || o.telNumber)
-  @Length(3, 3)
-  @Column({name: "tel_prefix", nullable: true})
-  public telPrefix: number;
-
-  @ValidateIf((o) => o.telAreaCode || o.telPrefix || o.telNumber)
-  @Length(4, 4)
-  @Column({name: "tel_number", nullable: true})
-  public telNumber: number;
+  // @ValidateIf((o) => o.faxAreaCode || o.faxPrefix || o.faxNumber)
+  // @Length(3, 3)
+  // @Column({name: "fax_area_code", nullable: true})
+  // public faxAreaCode: number;
+  //
+  // @ValidateIf((o) => o.faxAreaCode || o.faxPrefix || o.faxNumber)
+  // @Length(3, 3)
+  // @Column({name: "fax_prefix", nullable: true})
+  // public faxPrefix: number;
+  //
+  // @ValidateIf((o) => o.faxAreaCode || o.faxPrefix || o.faxNumber)
+  // @Length(4, 4)
+  // @Column({name: "fax_number", nullable: true})
+  // public faxNumber: string;
 
   @Column({name: "license_number", nullable: true})
   public licenseNumber: string;
-
-  @ValidateIf((o) => o.faxAreaCode || o.faxPrefix || o.faxNumber)
-  @Length(3, 3)
-  @Column({name: "fax_area_code", nullable: true})
-  public faxAreaCode: number;
-
-  @ValidateIf((o) => o.faxAreaCode || o.faxPrefix || o.faxNumber)
-  @Length(3, 3)
-  @Column({name: "fax_prefix", nullable: true})
-  public faxPrefix: number;
-
-  @ValidateIf((o) => o.faxAreaCode || o.faxPrefix || o.faxNumber)
-  @Length(4, 4)
-  @Column({name: "fax_number", nullable: true})
-  public faxNumber: string;
 
   @Length(2, 2)
   @Column({name: "default_withholding_state_code", nullable: true})
@@ -107,39 +118,46 @@ export default class Companies {
   @OneToMany(() => UserCompanyRoles, (companyRole) => companyRole.company, {cascade: true})
   public roles: UserCompanyRoles[];
 
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @OneToOne(() => Addresses, {cascade: true, onDelete: "CASCADE"})
+  @JoinColumn()
+  public physicalAddress: Addresses;
+
+  @IsOptional()
+  @ValidateNested({ each: true })
+  @OneToOne(() => Addresses, {cascade: true, onDelete: "CASCADE"})
+  @JoinColumn()
+  public mailingAddress: Addresses;
+
   constructor(data: any) {
     this.set(data);
   }
 
   public async set(data: any = {}) {
-    const {
-      code, status, name, address1, address2, city, state, country, zipCode, zipCodeExt,
-      telAreaCode, telPrefix, telNumber, licenseNumber, faxAreaCode, faxPrefix, faxNumber,
-      defaultWithholdingStateCode, defaultWithholdingLocal1Code, defaultWithholdingLocal2Code, isMultipleLocalTaxation,
-    } = data;
+    this.code = data.code;
+    this.status = data.status;
+    this.name = data.name;
+    this.country = data.country;
+    // this.address1 = address1;
+    // this.address2 = address2;
+    // this.city = city;
+    // this.state = state;
+    // this.zipCode = zipCode;
+    // this.zipCodeExt = zipCodeExt;
+    // this.telAreaCode = telAreaCode;
+    // this.telPrefix = telPrefix;
+    // this.telNumber = telNumber;
+    // this.faxAreaCode = faxAreaCode;
+    // this.faxPrefix = faxPrefix;
+    // this.faxNumber = faxNumber;
+    this.licenseNumber = data.licenseNumber;
+    this.defaultWithholdingStateCode = data.defaultWithholdingStateCode;
+    this.defaultWithholdingLocal1Code = data.defaultWithholdingLocal1Code;
+    this.defaultWithholdingLocal2Code = data.defaultWithholdingLocal2Code;
+    this.isMultipleLocalTaxation = data.isMultipleLocalTaxation;
 
-    this.code = code;
-    this.status = status;
-    this.name = name;
-    this.address1 = address1;
-    this.address2 = address2;
-    this.city = city;
-    this.state = state;
-    this.country = country;
-    this.zipCode = zipCode;
-    this.zipCodeExt = zipCodeExt;
-    this.telAreaCode = telAreaCode;
-    this.telPrefix = telPrefix;
-    this.telNumber = telNumber;
-    this.licenseNumber = licenseNumber;
-    this.faxAreaCode = faxAreaCode;
-    this.faxPrefix = faxPrefix;
-    this.faxNumber = faxNumber;
-    this.defaultWithholdingStateCode = defaultWithholdingStateCode;
-    this.defaultWithholdingLocal1Code = defaultWithholdingLocal1Code;
-    this.defaultWithholdingLocal2Code = defaultWithholdingLocal2Code;
-    this.isMultipleLocalTaxation = isMultipleLocalTaxation;
-
+    this.setAddresses(data);
     if (data.organization) {
       await this.setOrganization(data.organization);
     }
@@ -150,6 +168,17 @@ export default class Companies {
     const result = await repository.findOne(id);
     if (result) {
       this.organization = result;
+    }
+  }
+
+  private setAddresses(data: any = {}) {
+    if (data.physicalAddress) {
+      this.physicalAddress = this.physicalAddress || new Addresses({});
+      this.physicalAddress.set(data.physicalAddress);
+    }
+    if (data.mailingAddress) {
+      this.mailingAddress = this.mailingAddress || new Addresses({});
+      this.mailingAddress.set(data.mailingAddress);
     }
   }
 }

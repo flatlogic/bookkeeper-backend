@@ -69,10 +69,9 @@ export default class Accounts {
   @JoinColumn({name: "company_id"})
   public company: Companies;
 
-  // TODO: Will be used when we add Auth middleware to fetch Current User + Current Company from the request
-  // @IsNotEmpty()
-  // @ManyToOne(() => Companies)
-  // public company: Companies;
+  /* Non-functional fields */
+  @Column({name: "is_posted", nullable: true, default: false})
+  public isPosted: boolean = false;
 
   constructor(data: any) {
     this.set(data);

@@ -15,6 +15,7 @@ export default class CompaniesController {
 
     const companiesQuery = repository
       .createQueryBuilder("companies")
+      .leftJoinAndSelect("companies.physicalAddress", "physicalAddress")
       .where(
         `companies.is_deleted = :isDeleted ${query ? "AND (name ~* :query OR description ~* :query OR code ~* :query)" : ""}`,
         { isDeleted: false, query }
@@ -42,6 +43,8 @@ export default class CompaniesController {
     const repository = await getRepository(Companies);
     const companyQuery = repository
       .createQueryBuilder("companies")
+      .leftJoinAndSelect("companies.physicalAddress", "physicalAddress")
+      .leftJoinAndSelect("companies.mailingAddress", "mailingAddress")
       .where("companies.id = :id", {id});
     if (authUser.isAdmin()) {
       companyQuery.innerJoin(
@@ -66,18 +69,14 @@ export default class CompaniesController {
     const data = req.body;
     const authUser = req.user as Users;
 
-    const allowedFields = [
-      "code", "status", "name", "address1", "address2", "city", "state", "country", "zipCode", "zipCodeExt", "telAreaCode", "telPrefix", "telNumber",
-      "licenseNumber", "faxAreaCode", "faxPrefix", "faxNumber", "defaultWithholdingStateCode",
-      "defaultWithholdingLocal1Code", "defaultWithholdingLocal2Code", "isMultipleLocalTaxation",
-    ];
-    const companyData = dataMapper.map(data, allowedFields);
     const repository = await getRepository(Companies);
 
     let company;
     if (id) {
       const companyQuery = repository
         .createQueryBuilder("companies")
+        .leftJoinAndSelect("companies.physicalAddress", "physicalAddress")
+        .leftJoinAndSelect("companies.mailingAddress", "mailingAddress")
         .where("companies.id = :id", {id});
       if (authUser.isAdmin()) {
         companyQuery.innerJoin(
@@ -93,7 +92,7 @@ export default class CompaniesController {
         });
       }
 
-      company.set(companyData);
+      company.set(data);
     } else {
       let { organization } = req.query;
       if (authUser.isAdmin()) {
@@ -109,7 +108,7 @@ export default class CompaniesController {
         });
       }
       company = new Companies({});
-      await company.set({...companyData, organization});
+      await company.set({...data, organization});
     }
 
     const errors = await validate(company, { skipMissingProperties: true });
