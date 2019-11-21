@@ -1,3 +1,4 @@
+import get from "lodash/get";
 import {Column, Entity, ManyToOne, PrimaryGeneratedColumn, Unique} from "typeorm";
 
 import { STATUSES } from "../constants";
@@ -85,7 +86,7 @@ export default class GeneralLedger {
   @Column({name: "current_fiscal_year", nullable: false})
   public currentFiscalYear: number;
 
-  @Column({name: "calendar_year_period_1", nullable: false})
+  @Column({name: "calendar_year_period_1", nullable: true})
   public calendarYearPeriod1: number;
 
   @Column({name: "is_prior_fiscal_year_closed", nullable: false})
@@ -106,6 +107,25 @@ export default class GeneralLedger {
   @ManyToOne(() => Companies)
   public company: Companies;
 
+  /* Non-functional fields */
+  @Column({name: "last_journal_posted", nullable: true})
+  public lastJournalPosted: number;
+
+  @Column({name: "last_fiscal_year_posted", nullable: true})
+  public lastFiscalYearPosted: number;
+
+  @Column({name: "last_fiscal_period_posted", nullable: true})
+  public lastFiscalPeriodPosted: number;
+
+  @Column({name: "last_fiscal_year_balance_posted", nullable: true})
+  public lastFiscalYearBalancePosted: string; // ?
+
+  @Column({name: "reconciliation_date", nullable: true})
+  public reconciliationDate: string;
+
+  @Column({name: "calYearOf1stPerOfFiscalYear", nullable: true})
+  public calYearOf1stPerOfFiscalYear: string; // ?
+
   constructor(data: any) {
     this.set(data);
   }
@@ -113,9 +133,9 @@ export default class GeneralLedger {
   public set(data: any = {}) {
     for (let i = 1; i <= 12; i++) {
       // @ts-ignore
-      this[`period${i}Month`] = data[`period${i}Month`];
+      this[`period${i}Month`] = get(data.budget, `period${i}Month`);
       // @ts-ignore
-      this[`period${i}Status`] = data[`period${i}Status`];
+      this[`period${i}Status`] = get(data.budget, `period${i}Status`);
     }
     this.currentFiscalYear = data.currentFiscalYear;
     this.calendarYearPeriod1 = data.calendarYearPeriod1;
@@ -123,6 +143,13 @@ export default class GeneralLedger {
     this.retainedEarningsAccount = data.retainedEarningsAccount;
     this.retainedEarningsSubAccount = data.retainedEarningsSubAccount;
     this.company = data.company;
+
+    this.lastJournalPosted = data.lastJournalPosted;
+    this.lastFiscalYearPosted = data.lastFiscalYearPosted;
+    this.lastFiscalPeriodPosted = data.lastFiscalPeriodPosted;
+    this.lastFiscalYearBalancePosted = data.lastFiscalYearBalancePosted;
+    this.calYearOf1stPerOfFiscalYear = data.calYearOf1stPerOfFiscalYear;
+    this.reconciliationDate = data.reconciliationDate;
 
     if (!this.currentFiscalYearOpenedDate) {
       this.currentFiscalYearOpenedDate = new Date();

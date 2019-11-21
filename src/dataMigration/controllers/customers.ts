@@ -2,55 +2,55 @@ import { validate } from "class-validator";
 import { Request, Response } from "express";
 import { Not } from "typeorm";
 
+import { Err } from "joi";
 import { STATUSES } from "../../constants";
-import Accounts from "../../models/Accounts";
+import Customers from "../../models/Customers";
 import { getRepository } from "../../services/db";
-import accountsMapper from "../schemas/accounts";
+import customersMapper from "../schemas/customers";
 
-export default class AccountsController {
+export default class CustomersController {
   public static async list(req: Request, res: Response) {
     const { companyId } = req.query;
 
-    const repository = await getRepository(Accounts);
-    const accounts = await repository
-      .createQueryBuilder("accounts")
+    const repository = await getRepository(Customers);
+    const customers = await repository
+      .createQueryBuilder("customers")
       .where(
-        "is_subaccount <> :isSubAccount AND company_id = :company",
-        { isSubAccount: true, company: companyId },
+        "company_id = :company",
+        { company: companyId },
       )
       .getMany();
 
-    res.json(accounts);
+    res.json(customers);
   }
 
   public static async get(req: Request, res: Response) {
     const { code } = req.params;
     const { companyId } = req.query;
 
-    const repository = await getRepository(Accounts);
-    const account = await repository.findOne({
+    const repository = await getRepository(Customers);
+    const customer = await repository.findOne({
       where: {
         code,
-        isSubAccount: Not(true),
         company: companyId,
       }
     });
-    if (!account) {
+    if (!customer) {
       return res.status(404).json({
         errors: {
-          message: "No Accounts with provided \"code\"",
+          message: "No Customers with provided \"code\"",
         },
       });
     }
 
-    res.json(account);
+    res.json(customer);
   }
 
   public static async update(req: Request, res: Response) {
     const { companyId } = req.query;
 
-    const { accounts: rawData } = req.body;
-    const repository = await getRepository(Accounts);
+    const rawData: Array<{[key: string]: string | number, CustomerCode: string}> = req.body;
+    const repository = await getRepository(Customers);
 
     if (!Array.isArray(rawData)) {
       return res.status(400).json({
@@ -63,34 +63,35 @@ export default class AccountsController {
     const savingErrors = [];
     const savingSuccess = [];
     for (const data of rawData) {
-      const mappedData = accountsMapper(data);
+      let mappedData;
+      try {
+        mappedData = await customersMapper(data);
+      } catch (e) {
+        savingErrors.push({
+          id: data.CustomerCode,
+          message: e.message,
+        });
+        continue;
+      }
 
-      let account;
+      let customer;
       if (mappedData.code) {
-        account = await repository.findOne({
+        customer = await repository.findOne({
           where: {
             code: mappedData.code,
-            isSubAccount: Not(true),
             company: companyId,
           },
           relations: ["company"],
         });
-        // if (!account) {
-        //   savingErrors.push({
-        //     id: mappedData.code,
-        //     message: "Cannot find account",
-        //   });
-        //   continue;
-        // }
       }
 
-      if (account) {
-        account.set(mappedData);
+      if (customer) {
+        customer.set(mappedData);
       } else {
-        account = new Accounts({ ...mappedData, company: companyId });
+        customer = new Customers({ ...mappedData, company: companyId });
       }
 
-      const errors = await validate(account);
+      const errors = await validate(customer);
       if (errors.length > 0) {
         savingErrors.push({
           id: mappedData.code,
@@ -98,7 +99,7 @@ export default class AccountsController {
         });
       } else {
         try {
-          const result = await repository.save(account);
+          const result = await repository.save(customer);
           savingSuccess.push({
             id: mappedData.code,
             entityId: result.id,
@@ -122,14 +123,13 @@ export default class AccountsController {
     const { code } = req.params;
     const { companyId } = req.query;
 
-    const repository = await getRepository(Accounts);
+    const repository = await getRepository(Customers);
     const result = await repository
       .createQueryBuilder()
-      .update(Accounts)
+      .update(Customers)
       .set({ status: STATUSES.inactive })
-      .where("code = :code AND is_subaccount <> :isSubAccount AND company_id = :company", {
+      .where("code = :code AND company_id = :company", {
         code,
-        isSubAccount: true,
         company: companyId,
       })
       .returning(["id"])
@@ -140,7 +140,7 @@ export default class AccountsController {
     } else {
       res.status(404).json({
         errors: {
-          message: "No Accounts with provided \"code\"",
+          message: "No Customers with provided \"code\"",
         },
       });
     }

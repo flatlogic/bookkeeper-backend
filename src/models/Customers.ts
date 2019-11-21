@@ -5,7 +5,6 @@ import { Column, Entity, JoinColumn, ManyToOne, OneToOne, PrimaryGeneratedColumn
 import { isEmpty } from "../services/object";
 import Accounts from "./Accounts";
 import Addresses from "./Addresses";
-import BaseAddress from "./Base/BaseAddress";
 import Companies from "./Companies";
 
 @Entity()
@@ -86,6 +85,10 @@ export default class Customers {
   @JoinColumn({name: "default_sub_account_id"})
   public defaultSubAccount: Accounts;
 
+  /* Non-functional fields */
+  @Column({name: "last_payment_date", nullable: true})
+  public lastPaymentDate: Date;
+
   constructor(data = {}) {
     this.set(data);
   }
@@ -112,6 +115,7 @@ export default class Customers {
     this.toDateBillings = toNumber(get(data, "toDateBillings", this.toDateBillings));
     this.defaultAccount = get(data, "defaultAccount", this.defaultAccount);
     this.defaultSubAccount = get(data, "defaultSubAccount", this.defaultSubAccount);
+    this.lastPaymentDate = get(data, "lastPaymentDate", this.lastPaymentDate);
     this.company = get(data, "company", this.company);
 
     this.setAddresses(data);

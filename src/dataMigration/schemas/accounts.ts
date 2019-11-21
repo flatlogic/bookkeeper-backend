@@ -1,21 +1,29 @@
 // @ts-ignore
 import objectMapper from "object-mapper";
 
+import { RESTRICTIONS } from "../../models/Accounts";
 import accountBudgetSchema from "./accountBudget";
+import handle from "./handlers";
 
 const schema = {
-  GLAccountCode: "code",
+  GLAccountCode: {
+    key: "code",
+    transform: (value: string) => handle(value),
+  },
   RecordStatus: {
     key: "status",
-    transform: (value: string) => +value,
+    transform: (value: string) => !+handle(value) ? 1 : 0,
     default: 1,
   },
   FiscalCentury: {
-    key: "fiscalCentury",
+    key: "fiscalYear",
     transform: (value: string, data: any) => `${value}${data.FiscalYear}`,
     default: 1,
   },
-  Description: "description",
+  Description: {
+    key: "description",
+    transform: (value: string) => handle(value),
+  },
   AccountType: {
     key: "type",
     transform: (value: string) => {
@@ -29,23 +37,48 @@ const schema = {
           return null;
       }
     },
-    default: 1,
   },
   JobFlag: {
     key: "restriction",
     transform: (value: string) => {
       switch (value.toLowerCase()) {
         case "x":
-          return "njt";
+          return RESTRICTIONS.nonJob;
         case "e":
-          return "jet";
+          return RESTRICTIONS.jobExpense;
         case "i":
+          return RESTRICTIONS.jobIncome;
+        case "s":
+          return RESTRICTIONS.serviceTransactions;
+        case "eq":
+          return RESTRICTIONS.equipmentOnly;
+        default:
+          return null;
+      }
+    },
+  },
+  JobCostOrIncomeTypeFlag: {
+    key: "restrictionSubType",
+    transform: (value: string) => {
+      switch (handle(value)) {
+        case "1":
+          return RESTRICTIONS.nonJob;
+        case "2":
+          return "jet";
+        case "3":
+          return "jit";
+        case "4":
+          return "sbt";
+        case "5":
+          return RESTRICTIONS.nonJob;
+        case "6":
+          return "jet";
+        case "7":
           return "jit";
         default:
           return null;
       }
     },
-    default: 1,
   },
   Period13YearEndAdjAmntToDate: "endYearAdjustmentBudget",
   isSubAccount: "isSubAccount",

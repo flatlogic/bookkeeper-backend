@@ -5,17 +5,31 @@ import Companies from "./Companies";
 import GeneralLedgerAccountsBudget from "./GeneralLedgerAccountsBudget";
 
 export const RESTRICTIONS = {
-  njt: "Use with NON-JOB Transactions only",
-  jet: "Use only for JOB EXPENSE Transactions",
-  jit: "Use only for JOB INCOME Transactions",
-  et: "Use only for EQUIPMENT Transactions",
-  sbt: "Use only for SERVICE/BLNG Transactions",
+  nonJob: "njt", // "Use with NON-JOB Transactions only"
+  jobExpense: "jet", // "Use only for JOB EXPENSE Transactions",
+  jobIncome: "jit", // "Use only for JOB INCOME Transactions",
+  equipmentOnly: "et", // "Use only for EQUIPMENT Transactions",
+  serviceTransactions: "sbt", // "Use only for SERVICE/BLNG Transactions",
 };
 export const ACCOUNT_TYPES = {
-  a: "Asset",
-  l: "Liability",
-  i: "Income",
-  e: "Expense",
+  asset: "a", // "Asset",
+  liability: "l", // "Liability",
+  income: "i", // "Income",
+  expense: "e", // "Expense",
+};
+export const RESTRICTIONS_JOB_EXPENSE = {
+  subcontract: "jes", // "Subcontract",
+  equipment: "jee", // "Equipment",
+  labor: "jel", // "Labor",
+  materials: "jem", // "Materials",
+  laborBurden: "jelb", // "Labor Burden",
+  jobOverhead: "jejo", // "Job Overhead",
+};
+export const RESTRICTIONS_JOB_INCOME = {
+  progressBilling: "jipb", // "Progress Billing",
+  lumpSumBilling: "jils", // "Lump Sum Billing",
+  unitPriceBilling: "jiup", // "Unit Price Billing",
+  costPlusBilling: "jicp", // "Cost Plus Billing",
 };
 
 @Entity()
@@ -42,14 +56,19 @@ export default class Accounts {
 
   @ValidateIf((o) => !o.isSubAccount)
   @IsNotEmpty()
-  @IsIn(Object.keys(ACCOUNT_TYPES))
+  @IsIn(Object.values(ACCOUNT_TYPES))
   @Column({nullable: true})
   public type: string;
 
   @ValidateIf((o) => typeof o.restriction !== "undefined")
-  @IsIn([null, ...Object.keys(RESTRICTIONS)])
+  @IsIn([null, ...Object.values(RESTRICTIONS)])
   @Column({nullable: true})
   public restriction: string;
+
+  @ValidateIf((o) => typeof o.restriction !== "undefined")
+  @IsIn([null, ...Object.values(RESTRICTIONS_JOB_EXPENSE), ...Object.values(RESTRICTIONS_JOB_INCOME)])
+  @Column({name: "restriction_sub_type", nullable: true})
+  public restrictionSubType: string;
 
   @Column({type: "decimal", precision: 5, scale: 2, name: "end_year_adjustment_budget", nullable: true})
   public endYearAdjustmentBudget: number;
@@ -78,19 +97,16 @@ export default class Accounts {
   }
 
   public set(data: any = {}) {
-    const {
-      code, status, fiscalYear, description, endYearAdjustmentBudget, restriction, type, parent, isSubAccount
-    } = data;
-
-    this.code = code;
-    this.status = status;
-    this.fiscalYear = fiscalYear;
-    this.description = description;
-    this.endYearAdjustmentBudget = endYearAdjustmentBudget;
-    this.restriction = restriction;
-    this.type = type;
-    this.parent = parent;
-    this.isSubAccount = isSubAccount;
+    this.code = data.code;
+    this.status = data.status;
+    this.fiscalYear = data.fiscalYear;
+    this.description = data.description;
+    this.endYearAdjustmentBudget = data.endYearAdjustmentBudget;
+    this.restriction = data.restriction;
+    this.restrictionSubType = data.restrictionSubType;
+    this.type = data.type;
+    this.parent = data.parent;
+    this.isSubAccount = data.isSubAccount;
 
     if (data.company) {
       this.company = data.company;
