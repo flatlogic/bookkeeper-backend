@@ -8,6 +8,7 @@ import { getRepository } from "../../services/db";
 
 export default class SuperUsersController {
   public static async list(req: Request, res: Response) {
+    console.log("super List");
     const { query, sortKey = "id", sortOrder = "asc"} = req.query;
     const repository = await getRepository(Users);
     const usersQuery = repository
@@ -49,6 +50,7 @@ export default class SuperUsersController {
   }
 
   public static async update(req: Request, res: Response) {
+    console.log("super update");
     const { id } = req.params;
     const data = req.body;
     const repository = await getRepository(Users);

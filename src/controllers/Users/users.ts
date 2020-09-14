@@ -306,7 +306,7 @@ export default class UsersController {
         {
           ...user,
           link: `${url}?token=${user.passwordToken}`,
-          organizationName: user.getOrganization().name,
+          organizationName:  "flatlogic",
         },
       );
       res.status(200).json();
