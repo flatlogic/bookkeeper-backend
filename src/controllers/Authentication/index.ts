@@ -51,6 +51,49 @@ export default class AuthenticationController {
     });
   }
 
+  public static async register(req: Request, res: Response) {
+    const { username, password } = req.body;
+    const repository = await getRepository(Users);
+    const user = await repository
+      .createQueryBuilder("user")
+      .addSelect("user.password")
+      .addSelect("user.roles")
+      .leftJoinAndSelect("user.lastCompanySelected", "lastCompanySelected")
+      .leftJoinAndSelect("user.companyRoles", "companyRoles")
+      .leftJoinAndSelect("companyRoles.role", "companyRolesRole")
+      .leftJoinAndSelect("companyRoles.company", "companyRolesCompany")
+      .where("username = :username OR email = :username", { username })
+      .getOne();
+
+    if (!user) {
+      return res.status(404).json({
+        errors: {
+          message: "User not found",
+        },
+      });
+    }
+
+    const result = bcrypt.compareSync(password, user.password);
+    if (!result) {
+      return res.status(401).json({
+        errors: {
+          message: "Password not match",
+        },
+      });
+    }
+
+    user.lastLogin = new Date();
+    await repository.save(user);
+    const token = jwt.sign({...user}, process.env.SECRET, { expiresIn: 604800 });
+    res.json({
+      token: `JWT ${token}`,
+      user: {
+        ...user,
+        password: undefined,
+      },
+    });
+  }
+
   public static async setPassword(req: Request, res: Response) {
     const { token, password, repeatPassword } = req.body;
     const repository = await getRepository(Users);

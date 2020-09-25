@@ -5,6 +5,10 @@ export default {
     body("username", "\"username\" cannot be empty").exists(),
     body("password", "\"password\" cannot be empty").exists(),
   ],
+  register: [
+    body("username", "\"username\" cannot be empty").exists(),
+    body("password", "\"password\" cannot be empty").exists(),
+  ],
   setPassword: [
     body("token", "\"token\" cannot be empty").exists(),
     body("password", "\"password\" cannot be empty").exists(),

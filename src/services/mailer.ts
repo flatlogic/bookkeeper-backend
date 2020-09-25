@@ -63,7 +63,7 @@ export default class Mailer {
     const message = {
       from: process.env.SMTP_USER,
       to: email,
-      subject: subject,
+      subject,
       html: text,
     };
 
