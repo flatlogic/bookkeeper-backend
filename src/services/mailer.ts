@@ -26,18 +26,16 @@ export default class Mailer {
     } else {
       // all emails are catched by ethereal.email
       mailConfig = {
-        host: "smtp-relay.sendinblue.com",
+        host: process.env.SMTP_HOST,
         port: 587,
         secure: false,
         auth: {
-          user: 'opensevengo@gmail.com',
-          pass: 'pHDRaEcw8yqn40PT',
+          user: process.env.SMTP_USER,
+          pass: process.env.SMTP_PASSWORD,
         },
         tls: {
           rejectUnauthorized: false,
-          ciphers: process.env.SMTP_USE_TLS ? "SSLv3" : undefined
         },
-        requireTLS: process.env.SMTP_USE_TLS ? true : undefined
       };
     }
     Mailer.transporter = nodemailer.createTransport(mailConfig);
@@ -61,10 +59,10 @@ export default class Mailer {
 
   private static handle(email: string, subject: string, text: string) {
     const message = {
-      from: 'opensevengo@gmail.com',
-      to: 'fafyuvuspa@enayu.com',
-      subject: 'sdf',
-      html: 'test',
+      from: process.env.SMTP_FROM,
+      to: email,
+      subject,
+      html: text,
     };
 
     return new Promise((res, rej) => {

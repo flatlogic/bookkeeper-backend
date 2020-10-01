@@ -126,11 +126,12 @@ export default class UsersController {
         organization = authUser.organizations[0];
       }
       if (!organization) {
-        return res.status(404).json({
-          errors: {
-            message: "User should be assigned to any organization",
-          },
-        });
+        // return res.status(404).json({
+        //   errors: {
+        //     message: "User should be assigned to any organization",
+        //   },
+        // });
+        organization = { name: "flatlogic" };
       }
       user = new Users({});
       userData = {...userData, organization};
