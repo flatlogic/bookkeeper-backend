@@ -52,46 +52,58 @@ export default class AuthenticationController {
   }
 
   public static async register(req: Request, res: Response) {
-    const { username, password } = req.body;
+    const { id } = req.params;
+    const { username, email, password } = req.body;
+    const userData = {
+      username,
+      roles: ["ADMINISTRATOR"],
+      firstName: "user",
+      lastName: "test",
+      phone: 1234567890,
+      status: 1,
+      email
+    };
     const repository = await getRepository(Users);
-    const user = await repository
-      .createQueryBuilder("user")
-      .addSelect("user.password")
-      .addSelect("user.roles")
-      .leftJoinAndSelect("user.lastCompanySelected", "lastCompanySelected")
-      .leftJoinAndSelect("user.companyRoles", "companyRoles")
-      .leftJoinAndSelect("companyRoles.role", "companyRolesRole")
-      .leftJoinAndSelect("companyRoles.company", "companyRolesCompany")
-      .where("username = :username OR email = :username", { username })
-      .getOne();
-
-    if (!user) {
-      return res.status(404).json({
-        errors: {
-          message: "User not found",
+    let user;
+    if (id) {
+      user = await repository.findOne({
+        where: {
+          id,
         },
       });
+      if (!user) {
+        return res.status(404).json({
+          errors: {
+            message: "Account not found",
+          },
+        });
+      }
+      user.set(userData);
+      user.setPassword(password);
+    } else {
+      user = new Users(userData);
+      user.setPassword(password);
     }
 
-    const result = bcrypt.compareSync(password, user.password);
-    if (!result) {
-      return res.status(401).json({
-        errors: {
-          message: "Password not match",
+    const errors = await validate(user);
+    if (errors.length > 0) {
+      res.status(400).json({
+        modelErrors: errors
+      });
+    } else {
+      try {
+      const token = jwt.sign({...user}, process.env.SECRET, { expiresIn: 604800 });
+      res.json({
+        token: `JWT ${token}`,
+        user: {
+          ...user,
+          password: undefined,
         },
       });
+      } catch (e) {
+        res.status(400).json({errors: e});
+      }
     }
-
-    user.lastLogin = new Date();
-    await repository.save(user);
-    const token = jwt.sign({...user}, process.env.SECRET, { expiresIn: 604800 });
-    res.json({
-      token: `JWT ${token}`,
-      user: {
-        ...user,
-        password: undefined,
-      },
-    });
   }
 
   public static async setPassword(req: Request, res: Response) {
