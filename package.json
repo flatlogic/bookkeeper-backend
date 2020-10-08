@@ -4,6 +4,8 @@
   "description": "CP for Web",
   "main": "dist/index.js",
   "scripts": {
+    "seed:config": "ts-node ./node_modules/typeorm-seeding/dist/cli.js config",
+    "seed:run": "ts-node ./node_modules/typeorm-seeding/dist/cli.js seed",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prebuild": "tslint -c tslint.json -p tsconfig.json --fix",
     "build": "tsc",

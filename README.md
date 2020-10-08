@@ -26,15 +26,26 @@ heroku logs -a cp4web-be --tail
 
 #### How to set up database 
 
-MAC OS
+# MAC OS
+
 1) run
 
 `brew install postgres` 
+
 OR
+
 `brew install postgresql`
 
-if psql command gives you error, please try to reinstall postgres/postgresql and run brew services restart postgres/postgresql
-2) run psql --u postgres, if you see error please create new user with command createuser postgres -s (s flag stands for super)
+if psql command gives you error, please try to reinstall postgres/postgresql and run 
+
+`brew services restart postgres/postgresql`
+
+2) run 
+
+`psql --u postgres`
+
+if you see error please create new user with command -> `createuser postgres -s` (s flag stands for super)
+
 3) now you are logged in under postgres super user, run create database cp_master;
 4) run this command to connect to the new db -> \c cp_master
 5) copy path to the db file from text editor/finder
