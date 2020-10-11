@@ -4,7 +4,7 @@
   "port": 5432,
   "username": "postgres",
   "password": "root",
-  "database": "cp_master",
+  "database": "cp_master_seed",
   "synchronize": true,
   "logging": true,
   "migrationsTableName": "_migrations",
