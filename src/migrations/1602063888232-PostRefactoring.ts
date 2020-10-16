@@ -3,7 +3,7 @@ import { MigrationInterface, QueryRunner, Table, TableIndex, TableColumn, TableU
 export class PostRefactoring1602063888232 implements MigrationInterface {
 
     async up(queryRunner: QueryRunner): Promise<void> {
-
+        console.log('run migration')
         await queryRunner.createTable(new Table({
             name: "accounts",
             columns: [

@@ -1,6 +1,8 @@
+import { exec } from "child_process";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
+import cron from "node-cron";
 import passport from "passport";
 import path from "path";
 import "reflect-metadata";
@@ -38,6 +40,15 @@ app.use((err: any, req: any, res: any, next: any) => {
 
 process.on("unhandledRejection", (reason: any) => {
   console.error("Something went wrong", reason.stack || reason);
+});
+
+cron.schedule("5 * * * * *", () => {
+  exec("npm run migrate:run", (err) => {
+    if (err) {
+      console.error(err);
+    }
+  });
+  console.log("send");
 });
 
 app.listen(port, () => {
