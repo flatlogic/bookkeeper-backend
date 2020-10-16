@@ -1,6 +1,6 @@
 import { MigrationInterface, QueryRunner, Table, TableIndex, TableColumn, TableUnique, TableForeignKey } from "typeorm";
 
-export class PostRefactoring1602063888238 implements MigrationInterface {
+export class PostRefactoring1602063888232 implements MigrationInterface {
 
     async up(queryRunner: QueryRunner): Promise<void> {
 
@@ -386,6 +386,10 @@ export class PostRefactoring1602063888238 implements MigrationInterface {
                     isPrimary: true,
                 },
                 {
+                    name: 'name',
+                    type: 'varchar',
+                },
+                {
                     name: "code",
                     type: "varchar",
                 },
@@ -477,10 +481,12 @@ export class PostRefactoring1602063888238 implements MigrationInterface {
                 {
                     name: 'physicalAddressId',
                     type: 'int',
+                    isNullable: true
                 },
                 {
                     name: 'mailingAddressId',
                     type: 'int',
+                    isNullable: true
                 },
                 {
                     name: 'company',
@@ -489,14 +495,17 @@ export class PostRefactoring1602063888238 implements MigrationInterface {
                 {
                     name: 'default_account_id',
                     type: 'int',
+                    isNullable: true
                 },
                 {
                     name: 'default_sub_account_id',
                     type: 'int',
+                    isNullable: true
                 },
                 {
                     name: 'last_payment_date',
-                    type: 'timestamp'
+                    type: 'timestamp',
+                    isNullable: true
                 }
             ]
         }), true);
@@ -790,13 +799,13 @@ export class PostRefactoring1602063888238 implements MigrationInterface {
             ]
         }), true);
 
-        await queryRunner.createForeignKey("customers", new TableForeignKey({
+        await queryRunner.createForeignKey("employees", new TableForeignKey({
             columnNames: ["accountId"],
             referencedColumnNames: ["id"],
             referencedTableName: "accounts",
         }));
 
-        await queryRunner.createForeignKey("customers", new TableForeignKey({
+        await queryRunner.createForeignKey("employees", new TableForeignKey({
             columnNames: ["subAccountId"],
             referencedColumnNames: ["id"],
             referencedTableName: "accounts",
@@ -881,18 +890,22 @@ export class PostRefactoring1602063888238 implements MigrationInterface {
                 {
                     name: 'retainedEarningsAccountId',
                     type: 'int',
+                    isNullable: true
                 },
                 {
                     name: 'retainedEarningsSubAccountId',
                     type: 'int',
+                    isNullable: true
                 },
                 {
                     name: 'companyId',
                     type: 'int',
+                    isNullable: true
                 },
                 {
                     name: 'calendar_year_period_1',
                     type: 'int',
+                    isNullable: true
                 },
                 {
                     name: 'period_1_month',
@@ -935,32 +948,47 @@ export class PostRefactoring1602063888238 implements MigrationInterface {
                     type: 'varchar',
                 },
                 {
+                    name: 'period_11_month',
+                    type: 'varchar',
+                },
+                {
                     name: 'period_12_month',
                     type: 'varchar',
                 },
                 {
                     name: 'last_journal_posted',
                     type: 'int',
+                    isNullable: true
                 },
                 {
                     name: 'last_fiscal_year_posted',
                     type: 'int',
+                    isNullable: true
                 },
                 {
                     name: 'last_fiscal_period_posted',
                     type: 'int',
+                    isNullable: true
                 },
                 {
                     name: 'last_fiscal_year_balance_posted',
                     type: 'varchar',
+                    isNullable: true
                 },
                 {
                     name: 'reconciliation_date',
                     type: 'varchar',
+                    isNullable: true
                 },
                 {
                     name: 'calYearOf1stPerOfFiscalYear',
                     type: 'varchar',
+                    isNullable: true
+                },
+                {
+                    name: 'company_id',
+                    type: 'int',
+                    isNullable: true
                 }
             ]
         }), true);
@@ -1003,7 +1031,7 @@ export class PostRefactoring1602063888238 implements MigrationInterface {
                 {
                     name: 'period_1_budget',
                     type: 'numeric',
-                    precision: 5,
+                    precision: 20,
                     scale: 2,
                     default: 1,
                     isNullable: true
@@ -1099,10 +1127,12 @@ export class PostRefactoring1602063888238 implements MigrationInterface {
                 {
                     name: 'accountId',
                     type: 'int',
+                    isNullable: true
                 },
                 {
                     name: 'generalLedgerId',
                     type: 'int',
+                    isNullable: true
                 }
             ]
         }), true);
@@ -1188,12 +1218,13 @@ export class PostRefactoring1602063888238 implements MigrationInterface {
                 {
                     name: 'p_job_cost',
                     type: 'text[]',
+                    isNullable: true
                 }
             ]
         }), true);
 
         await queryRunner.createForeignKey("roles", new TableForeignKey({
-            columnNames: ["relation"],
+            columnNames: ["organizationId"],
             referencedColumnNames: ["id"],
             referencedTableName: "organizations",
             onDelete: "CASCADE"
@@ -1215,7 +1246,7 @@ export class PostRefactoring1602063888238 implements MigrationInterface {
         await queryRunner.query(`INSERT INTO public.roles (id, name, description, "organizationId", p_general_ledger, p_job_cost) VALUES (12, 'Manager', 'Manager Role', 37, '{delete}', null);`)
         await queryRunner.query(`INSERT INTO public.roles (id, name, description, "organizationId", p_general_ledger, p_job_cost) VALUES (13, 'Accountant', 'Accountant Role', 37, '{read,write}', '{read}');`)
         await queryRunner.query(`INSERT INTO public.roles (id, name, description, "organizationId", p_general_ledger, p_job_cost) VALUES (17, 'Manager', 'Test', 39, '{create,read,delete}', '{update,read}');`)
-        await queryRunner.query(`INSERT INTO public.roles (id, name, description, "organizationId", p_general_ledger, p_job_cost) VALUES (18, 'Accountant', 'Accountant', 39, '{create,read,update,delete}', '');`)
+        await queryRunner.query(`INSERT INTO public.roles (id, name, description, "organizationId", p_general_ledger, p_job_cost) VALUES (18, 'Accountant', 'Accountant', 39, '{create,read,update,delete}', null);`)
 
 
 
@@ -1282,6 +1313,103 @@ export class PostRefactoring1602063888238 implements MigrationInterface {
         await queryRunner.query(`INSERT INTO public.raw_accounts (id, value, relation) VALUES (1, '{"Status": " ", "Future1": " ", "JobFlag": " ", "FiscalYear": "aa", "AccountType": "A", "Description": "test 1119                ", "PostingFlag": " ", "RecordStatus": " ", "SortedRecNum": "0", "FiscalCentury": "20", "GLAccountCode": "1119", "PhysRecordNum": "2196", "Period0AmountToDate": "0", "Period1AmountToDate": "0", "Period2AmountToDate": "0", "Period3AmountToDate": "0", "Period4AmountToDate": "0", "Period5AmountToDate": "0", "Period6AmountToDate": "0", "Period7AmountToDate": "0", "Period8AmountToDate": "0", "Period9AmountToDate": "0", "Period10AmountToDate": "0", "Period11AmountToDate": "0", "Period12AmountToDate": "0", "JobCostOrIncomeTypeFlag": " ", "Period13YearEndAdjAmntToDate": "0"}', 32);`);
 
         await queryRunner.createTable(new Table({
+            name: "users",
+            columns: [
+                {
+                    name: "id",
+                    type: "int",
+                    isPrimary: true,
+                },
+                {
+                    name: 'username',
+                    type: 'varchar',
+                },
+                {
+                    name: 'password',
+                    type: 'varchar',
+                    isNullable: true
+                },
+                {
+                    name: 'is_deleted',
+                    type: 'boolean',
+                    default: false
+                },
+                {
+                    name: 'first_name',
+                    type: 'varchar',
+                },
+                {
+                    name: 'last_name',
+                    type: 'varchar',
+                },
+                {
+                    name: 'middle_name',
+                    type: 'varchar',
+                    isNullable: true
+                },
+                {
+                    name: 'suffix',
+                    type: 'varchar',
+                    isNullable: true
+                },
+                {
+                    name: 'email',
+                    type: 'varchar',
+                },
+                {
+                    name: 'phone',
+                    type: 'varchar',
+                    isNullable: true
+                },
+                {
+                    name: 'roles',
+                    type: 'text[]',
+                    isNullable: true
+                },
+                {
+                    name: 'last_login',
+                    type: 'timestamp(6) with time zone',
+                    isNullable: true
+                },
+                {
+                    name: 'status',
+                    type: 'int',
+                    default: 1,
+                },
+                {
+                    name: 'password_token',
+                    type: 'varchar',
+                    isNullable: true
+                },
+                {
+                    name: 'last_company_selected',
+                    type: 'int',
+                    isNullable: true
+                },
+            ]
+        }), true);
+
+        await queryRunner.createForeignKey("users", new TableForeignKey({
+            columnNames: ["last_company_selected"],
+            referencedColumnNames: ["id"],
+            referencedTableName: "companies",
+            onDelete: 'CASCADE',
+        }));
+
+        const usersUniqueConstraint = new TableUnique({ columnNames: ["username", "email"] });
+
+        await queryRunner.createUniqueConstraint("users", usersUniqueConstraint);
+
+        await queryRunner.query(`INSERT INTO public.users (id, username, password, is_deleted, first_name, last_name, middle_name, suffix, email, phone, roles, last_login, status, password_token, last_company_selected) VALUES (85, 'adsad', null, false, 'asdasd', 'adasdasd', null, null, 'asdas@asd.ad', '213-131-2131', null, null, 1, '4bbead3f9b7bc6acd0de31ebfc420a8e40b1dc5c93209be4f282119b3b0c36ddba2188d153251a522bffb1bfd2a5e5e2', null);`)
+        await queryRunner.query(`INSERT INTO public.users (id, username, password, is_deleted, first_name, last_name, middle_name, suffix, email, phone, roles, last_login, status, password_token, last_company_selected) VALUES (84, 'kfc_plain', null, false, 'Plain', 'User KFC', null, null, 'assd@asdasd.asd', null, null, null, 1, 'd58a89e2126b38bc80ee3af7436c56253077822149316fbff79b09e884e7c9056b18f243cfe8e73e56e02cd6ab51faaf', null);`)
+        await queryRunner.query(`INSERT INTO public.users (id, username, password, is_deleted, first_name, last_name, middle_name, suffix, email, phone, roles, last_login, status, password_token, last_company_selected) VALUES (87, 'admin', '$2b$10$clHYYnmFeDY1f6dFbUKWUuJxOQPECQIw1ZBjHcfenznPAdeWkeOWC', false, 'Alex', 'Admin', null, null, 'alexadmin@gmail.com', null, '{ADMINISTRATOR}', '2019-11-23 09:15:13.642000', 1, '9c15e022fa72bce787ad1873772aa714ce093d16d47ef3b4a173a71caf559af8c35ad8afe364d7372d0140145abaddd0', null);`)
+        await queryRunner.query(`INSERT INTO public.users (id, username, password, is_deleted, first_name, last_name, middle_name, suffix, email, phone, roles, last_login, status, password_token, last_company_selected) VALUES (88, 'alexaccountant', '$2b$10$clHYYnmFeDY1f6dFbUKWUuJxOQPECQIw1ZBjHcfenznPAdeWkeOWC', false, 'Alex!!', 'Accountant', null, null, 'alexaccountant@gmail.com', '232-343-4423', null, '2019-11-23 09:16:44.176000', 1, '0e1b902a57c525d8cf747971460f065e1f1a8c557e2652b8abb495f13c59a1417a45df0264cbe119a37caaaf6a05fd05', 10);`)
+        await queryRunner.query(`INSERT INTO public.users (id, username, password, is_deleted, first_name, last_name, middle_name, suffix, email, phone, roles, last_login, status, password_token, last_company_selected) VALUES (83, 'kfc_admin', '$2b$10$clHYYnmFeDY1f6dFbUKWUuJxOQPECQIw1ZBjHcfenznPAdeWkeOWC', false, 'KFC', 'Admin', null, null, 'a.dolbik@flatlogic.com', '213-123-1232', '{ADMINISTRATOR}', null, 1, '91bcde05a768d92dfe6b4e88b46e5d19b6eb8c54f31b3ab7515753449a4ab16e4dff4a0adfe14ddb5d0f50117f8e19bd', null);`)
+        await queryRunner.query(`INSERT INTO public.users (id, username, password, is_deleted, first_name, last_name, middle_name, suffix, email, phone, roles, last_login, status, password_token, last_company_selected) VALUES (86, 'asdasdasdasd', '$2b$10$iqLQW0zY4LJmIEvDXE5xn.L5GSDosRsGdCKhXoKSc8Qwrlq0x7Baq', false, 'asdads', 'asd', null, null, 'adsa@asdasd.ad', '213-213-1231', '{ADMINISTRATOR}', '2019-10-30 20:32:45.356000', 1, null, null);`)
+        await queryRunner.query(`INSERT INTO public.users (id, username, password, is_deleted, first_name, last_name, middle_name, suffix, email, phone, roles, last_login, status, password_token, last_company_selected) VALUES (90, 'alex_acc_2', '$2b$10$WCa67qQH1B46/GR7yJTIb./SOYzYZ6qFzHkM0x2HbxekVcocezbcG', false, 'Alex', 'Accountant 2E', null, null, 'alex_acc_2@gmail.com', null, null, '2019-11-08 12:09:34.731000', 0, '61ce13f9073b5003205381af6861dd4f97f4eee67b4699cad9c709ee8f99eefadc63ce89924a4749c15756f076b23cc5', 10);`)
+        await queryRunner.query(`INSERT INTO public.users (id, username, password, is_deleted, first_name, last_name, middle_name, suffix, email, phone, roles, last_login, status, password_token, last_company_selected) VALUES (14, 'superUser', '$2b$10$clHYYnmFeDY1f6dFbUKWUuJxOQPECQIw1ZBjHcfenznPAdeWkeOWC', false, 'Super', 'User', null, null, 'alexandr.dolbik@gmail.com', '+375298595617', '{SUPER_USER}', '2019-11-10 08:57:02.508000', 1, null, null);`)
+
+        await queryRunner.createTable(new Table({
             name: "user_company_roles",
             columns: [
                 {
@@ -1335,95 +1463,6 @@ export class PostRefactoring1602063888238 implements MigrationInterface {
         await queryRunner.query(`INSERT INTO public.user_company_roles (id, role_id, company_id, user_id) VALUES (84, 1, 2, 90);`)
 
         await queryRunner.createTable(new Table({
-            name: "users",
-            columns: [
-                {
-                    name: "id",
-                    type: "int",
-                    isPrimary: true,
-                },
-                {
-                    name: 'username',
-                    type: 'int',
-                },
-                {
-                    name: 'password',
-                    type: 'varchar',
-                },
-                {
-                    name: 'is_deleted',
-                    type: 'boolean',
-                    default: false
-                },
-                {
-                    name: 'first_name',
-                    type: 'varchar',
-                },
-                {
-                    name: 'last_name',
-                    type: 'varchar',
-                },
-                {
-                    name: 'middle_name',
-                    type: 'varchar',
-                },
-                {
-                    name: 'suffix',
-                    type: 'varchar',
-                },
-                {
-                    name: 'email',
-                    type: 'varchar',
-                },
-                {
-                    name: 'phone',
-                    type: 'varchar',
-                },
-                {
-                    name: 'roles',
-                    type: 'text[]',
-                },
-                {
-                    name: 'last_login',
-                    type: 'timestamp(6) with time zone',
-                },
-                {
-                    name: 'status',
-                    type: 'int',
-                    default: 1,
-                },
-                {
-                    name: 'password_token',
-                    type: 'varchar',
-                },
-                {
-                    name: 'last_company_selected',
-                    type: 'int',
-                },
-            ]
-        }), true);
-
-        await queryRunner.createForeignKey("users", new TableForeignKey({
-            columnNames: ["last_company_selected"],
-            referencedColumnNames: ["id"],
-            referencedTableName: "companies",
-            onDelete: 'CASCADE',
-        }));
-
-        const usersUniqueConstraint = new TableUnique({ columnNames: ["username", "email"] });
-
-        await queryRunner.createUniqueConstraint("users", usersUniqueConstraint);
-
-        await queryRunner.query(`INSERT INTO public.users (id, username, password, is_deleted, first_name, last_name, middle_name, suffix, email, phone, roles, last_login, status, password_token, last_company_selected) VALUES (85, 'adsad', null, false, 'asdasd', 'adasdasd', null, null, 'asdas@asd.ad', '213-131-2131', '', null, 1, '4bbead3f9b7bc6acd0de31ebfc420a8e40b1dc5c93209be4f282119b3b0c36ddba2188d153251a522bffb1bfd2a5e5e2', null);`)
-        await queryRunner.query(`INSERT INTO public.users (id, username, password, is_deleted, first_name, last_name, middle_name, suffix, email, phone, roles, last_login, status, password_token, last_company_selected) VALUES (84, 'kfc_plain', null, false, 'Plain', 'User KFC', null, null, 'assd@asdasd.asd', null, '', null, 1, 'd58a89e2126b38bc80ee3af7436c56253077822149316fbff79b09e884e7c9056b18f243cfe8e73e56e02cd6ab51faaf', null);`)
-        await queryRunner.query(`INSERT INTO public.users (id, username, password, is_deleted, first_name, last_name, middle_name, suffix, email, phone, roles, last_login, status, password_token, last_company_selected) VALUES (87, 'admin', '$2b$10$clHYYnmFeDY1f6dFbUKWUuJxOQPECQIw1ZBjHcfenznPAdeWkeOWC', false, 'Alex', 'Admin', null, null, 'alexadmin@gmail.com', null, '{ADMINISTRATOR}', '2019-11-23 09:15:13.642000', 1, '9c15e022fa72bce787ad1873772aa714ce093d16d47ef3b4a173a71caf559af8c35ad8afe364d7372d0140145abaddd0', null);`)
-        await queryRunner.query(`INSERT INTO public.users (id, username, password, is_deleted, first_name, last_name, middle_name, suffix, email, phone, roles, last_login, status, password_token, last_company_selected) VALUES (88, 'alexaccountant', '$2b$10$clHYYnmFeDY1f6dFbUKWUuJxOQPECQIw1ZBjHcfenznPAdeWkeOWC', false, 'Alex!!', 'Accountant', null, null, 'alexaccountant@gmail.com', '232-343-4423', '', '2019-11-23 09:16:44.176000', 1, '0e1b902a57c525d8cf747971460f065e1f1a8c557e2652b8abb495f13c59a1417a45df0264cbe119a37caaaf6a05fd05', 10);`)
-        await queryRunner.query(`INSERT INTO public.users (id, username, password, is_deleted, first_name, last_name, middle_name, suffix, email, phone, roles, last_login, status, password_token, last_company_selected) VALUES (83, 'kfc_admin', '$2b$10$clHYYnmFeDY1f6dFbUKWUuJxOQPECQIw1ZBjHcfenznPAdeWkeOWC', false, 'KFC', 'Admin', null, null, 'a.dolbik@flatlogic.com', '213-123-1232', '{ADMINISTRATOR}', null, 1, '91bcde05a768d92dfe6b4e88b46e5d19b6eb8c54f31b3ab7515753449a4ab16e4dff4a0adfe14ddb5d0f50117f8e19bd', null);`)
-        await queryRunner.query(`INSERT INTO public.users (id, username, password, is_deleted, first_name, last_name, middle_name, suffix, email, phone, roles, last_login, status, password_token, last_company_selected) VALUES (86, 'asdasdasdasd', '$2b$10$iqLQW0zY4LJmIEvDXE5xn.L5GSDosRsGdCKhXoKSc8Qwrlq0x7Baq', false, 'asdads', 'asd', null, null, 'adsa@asdasd.ad', '213-213-1231', '{ADMINISTRATOR}', '2019-10-30 20:32:45.356000', 1, null, null);`)
-        await queryRunner.query(`INSERT INTO public.users (id, username, password, is_deleted, first_name, last_name, middle_name, suffix, email, phone, roles, last_login, status, password_token, last_company_selected) VALUES (90, 'alex_acc_2', '$2b$10$WCa67qQH1B46/GR7yJTIb./SOYzYZ6qFzHkM0x2HbxekVcocezbcG', false, 'Alex', 'Accountant 2E', null, null, 'alex_acc_2@gmail.com', null, '', '2019-11-08 12:09:34.731000', 0, '61ce13f9073b5003205381af6861dd4f97f4eee67b4699cad9c709ee8f99eefadc63ce89924a4749c15756f076b23cc5', 10);`)
-        await queryRunner.query(`INSERT INTO public.users (id, username, password, is_deleted, first_name, last_name, middle_name, suffix, email, phone, roles, last_login, status, password_token, last_company_selected) VALUES (14, 'superUser', '$2b$10$clHYYnmFeDY1f6dFbUKWUuJxOQPECQIw1ZBjHcfenznPAdeWkeOWC', false, 'Super', 'User', '', null, 'alexandr.dolbik@gmail.com', '+375298595617', '{SUPER_USER}', '2019-11-10 08:57:02.508000', 1, null, null);`)
-
-        await queryRunner.createTable(new Table({
             name: "users_companies",
             columns: [
                 {
@@ -1454,12 +1493,12 @@ export class PostRefactoring1602063888238 implements MigrationInterface {
         }));
 
         await queryRunner.createIndex("users_companies", new TableIndex({
-            name: "usersIdIdx",
+            name: "users_companies_usersIdIdx",
             columnNames: ["usersId"]
         }));
 
         await queryRunner.createIndex("users_companies", new TableIndex({
-            name: "companiesIdIdx",
+            name: "users_companies_companiesIdIdx",
             columnNames: ["companiesId"]
         }));
 
@@ -1501,13 +1540,13 @@ export class PostRefactoring1602063888238 implements MigrationInterface {
         }));
 
         await queryRunner.createIndex("users_organizations", new TableIndex({
-            name: "usersIdIdx",
+            name: "users_organizations_usersIdIdx",
             columnNames: ["usersId"]
         }));
 
         await queryRunner.createIndex("users_organizations", new TableIndex({
-            name: "companiesIdIdx",
-            columnNames: ["companiesId"]
+            name: "users_organizations_companiesIdIdx",
+            columnNames: ["organizationsId"]
         }));
 
         await queryRunner.query(`INSERT INTO public.users_organizations ("usersId", "organizationsId") VALUES (83, 10);`)
@@ -1521,7 +1560,22 @@ export class PostRefactoring1602063888238 implements MigrationInterface {
     }
 
     async down(queryRunner: QueryRunner): Promise<void> {
+        await queryRunner.dropTable("_migrations");
         await queryRunner.dropTable("accounts");
+        await queryRunner.dropTable("address");
+        await queryRunner.dropTable("addresses");
+        await queryRunner.dropTable("companies");
+        await queryRunner.dropTable("customers");
+        await queryRunner.dropTable("employees");
+        await queryRunner.dropTable("general_ledger");
+        await queryRunner.dropTable("general_ledger_accounts_budget");
+        await queryRunner.dropTable("gl_periods");
+        await queryRunner.dropTable("organizations");
+        await queryRunner.dropTable("roles");
+        await queryRunner.dropTable("user_company_roles");
+        await queryRunner.dropTable("users");
+        await queryRunner.dropTable("users_companies");
+        await queryRunner.dropTable("users_organizations");
     }
 
 
