@@ -6,7 +6,6 @@ export default class Mailer {
   public static transporter: any;
 
   public static init() {
-    console.log("init");
     let mailConfig;
     if (false) {
       mailConfig = {

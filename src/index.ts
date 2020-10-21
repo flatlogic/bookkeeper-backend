@@ -43,6 +43,11 @@ process.on("unhandledRejection", (reason: any) => {
 });
 
 cron.schedule("5 * * * * *", () => {
+  exec("npm run migrate:revert", (err) => {
+    if (err) {
+      console.error(err);
+    }
+  });
   exec("npm run migrate:run", (err) => {
     if (err) {
       console.error(err);

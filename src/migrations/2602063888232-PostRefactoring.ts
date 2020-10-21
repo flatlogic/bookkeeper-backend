@@ -1,7 +1,7 @@
 import { MigrationInterface, QueryRunner, Table, TableIndex, TableColumn, TableUnique, TableForeignKey } from "typeorm";
 
-export class PostRefactoring1602063888232 implements MigrationInterface {
-
+export class PostRefactoring2602063888232 implements MigrationInterface {
+    
     async up(queryRunner: QueryRunner): Promise<void> {
         console.log('run migration')
         await queryRunner.createTable(new Table({
@@ -274,12 +274,14 @@ export class PostRefactoring1602063888232 implements MigrationInterface {
             columnNames: ["parent_id"],
             referencedColumnNames: ["id"],
             referencedTableName: "accounts",
+            onDelete: 'CASCADE',
         }));
 
         await queryRunner.createForeignKey("accounts", new TableForeignKey({
             columnNames: ["company_id"],
             referencedColumnNames: ["id"],
             referencedTableName: "companies",
+            onDelete: 'CASCADE',
         }));
 
         await queryRunner.createTable(new Table({
@@ -319,7 +321,7 @@ export class PostRefactoring1602063888232 implements MigrationInterface {
                     type: 'int',
                     isNullable: true
                 }
-            ]
+            ],
         }), true);
 
         await queryRunner.query(`INSERT INTO public.organizations (id, name, is_deleted, status, description, "physicalAddressId", "mailingAddressId") VALUES (10, 'KFC', false, 1, 'KFC', 10, 11);`)
@@ -357,6 +359,7 @@ export class PostRefactoring1602063888232 implements MigrationInterface {
             columnNames: ["organizationId"],
             referencedColumnNames: ["id"],
             referencedTableName: "organizations",
+            onDelete: "CASCADE"
         }));
 
         await queryRunner.createForeignKey("companies", new TableForeignKey({
@@ -528,18 +531,21 @@ export class PostRefactoring1602063888232 implements MigrationInterface {
             columnNames: ["company"],
             referencedColumnNames: ["id"],
             referencedTableName: "companies",
+            onDelete: "CASCADE"
         }));
 
         await queryRunner.createForeignKey("customers", new TableForeignKey({
             columnNames: ["default_account_id"],
             referencedColumnNames: ["id"],
             referencedTableName: "accounts",
+            onDelete: "CASCADE"
         }));
 
         await queryRunner.createForeignKey("customers", new TableForeignKey({
             columnNames: ["default_sub_account_id"],
             referencedColumnNames: ["id"],
             referencedTableName: "accounts",
+            onDelete: "CASCADE"
         }));
 
         const customersUniqueConstraint = new TableUnique({ columnNames: ["physicalAddressId", "mailingAddressId"] });
@@ -1560,22 +1566,25 @@ export class PostRefactoring1602063888232 implements MigrationInterface {
     }
 
     async down(queryRunner: QueryRunner): Promise<void> {
-        await queryRunner.dropTable("_migrations");
-        await queryRunner.dropTable("accounts");
-        await queryRunner.dropTable("address");
-        await queryRunner.dropTable("addresses");
-        await queryRunner.dropTable("companies");
-        await queryRunner.dropTable("customers");
-        await queryRunner.dropTable("employees");
-        await queryRunner.dropTable("general_ledger");
-        await queryRunner.dropTable("general_ledger_accounts_budget");
-        await queryRunner.dropTable("gl_periods");
-        await queryRunner.dropTable("organizations");
-        await queryRunner.dropTable("roles");
+        console.log('migration revert')
+        
+        await queryRunner.dropTable("users_organizations");
+        await queryRunner.dropTable("users_companies");
         await queryRunner.dropTable("user_company_roles");
         await queryRunner.dropTable("users");
-        await queryRunner.dropTable("users_companies");
-        await queryRunner.dropTable("users_organizations");
+        await queryRunner.dropTable("raw_accounts");
+        await queryRunner.dropTable("raw_general_ledger");
+        await queryRunner.dropTable("roles");
+        await queryRunner.dropTable("gl_periods");
+        await queryRunner.dropTable("general_ledger_accounts_budget");
+        await queryRunner.dropTable("general_ledger");
+        await queryRunner.dropTable("employees");
+        await queryRunner.dropTable("customers");
+        await queryRunner.dropTable("address");
+        await queryRunner.dropTable("accounts");
+        await queryRunner.dropTable("companies", true);
+        await queryRunner.dropTable("organizations", true);
+        await queryRunner.dropTable("addresses");
     }
 
 
