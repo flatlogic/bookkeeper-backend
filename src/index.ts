@@ -52,7 +52,7 @@ cron.schedule("5 * * * * *", () => {
 });
 
 app.listen(port, () => {
-  exec("sudo npm run migrate:run", (err) => {
+  exec("npm run migrate:run", (err) => {
     if (err) {
       console.error(err);
     }
