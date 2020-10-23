@@ -15,6 +15,7 @@ export class PostRefactoring2602063888232 implements MigrationInterface {
                 {
                     name: "code",
                     type: "varchar",
+                    isNullable: true
                 },
                 {
                     name: 'status',
@@ -198,6 +199,7 @@ export class PostRefactoring2602063888232 implements MigrationInterface {
                 {
                     name: "code",
                     type: "varchar",
+                    isNullable: true
                 },
                 {
                     name: 'status',
@@ -211,6 +213,7 @@ export class PostRefactoring2602063888232 implements MigrationInterface {
                 {
                     name: 'license_number',
                     type: 'varchar',
+                    isNullable: true
                 },
                 {
                     name: 'default_withholding_state_code',
@@ -236,6 +239,7 @@ export class PostRefactoring2602063888232 implements MigrationInterface {
                 {
                     name: 'organizationId',
                     type: 'integer',
+                    isNullable: true
                 },
                 {
                     name: 'is_deleted',
@@ -395,6 +399,7 @@ export class PostRefactoring2602063888232 implements MigrationInterface {
                 {
                     name: "code",
                     type: "varchar",
+                    isNullable: true
                 },
                 {
                     name: 'status',
@@ -494,6 +499,7 @@ export class PostRefactoring2602063888232 implements MigrationInterface {
                 {
                     name: 'company',
                     type: 'int',
+                    isNullable: true
                 },
                 {
                     name: 'default_account_id',
@@ -612,6 +618,7 @@ export class PostRefactoring2602063888232 implements MigrationInterface {
                 {
                     name: 'code',
                     type: 'varchar',
+                    isNullable: true
                 },
                 {
                     name: 'status',
@@ -764,10 +771,12 @@ export class PostRefactoring2602063888232 implements MigrationInterface {
                 {
                     name: 'accountId',
                     type: 'int',
+                    isNullable: true
                 },
                 {
                     name: 'subAccountId',
                     type: 'int',
+                    isNullable: true
                 },
                 {
                     name: 'state_sui_sdi_code',
@@ -1179,14 +1188,17 @@ export class PostRefactoring2602063888232 implements MigrationInterface {
                 {
                     name: "name",
                     type: "varchar",
+                    isNullable: true
                 },
                 {
                     name: 'number',
                     type: 'int',
+                    isNullable: true
                 },
                 {
                     name: 'fiscal_year',
                     type: 'int',
+                    isNullable: true
                 }
             ]
         }), true);
@@ -1215,11 +1227,13 @@ export class PostRefactoring2602063888232 implements MigrationInterface {
                 },
                 {
                     name: 'organizationId',
-                    type: 'int'
+                    type: 'int',
+                    isNullable: true
                 },
                 {
                     name: 'p_general_ledger',
                     type: 'text[]',
+                    isNullable: true
                 },
                 {
                     name: 'p_job_cost',
@@ -1267,10 +1281,12 @@ export class PostRefactoring2602063888232 implements MigrationInterface {
                 {
                     name: "value",
                     type: "jsonb",
+                    isNullable: true
                 },
                 {
                     name: 'relation',
                     type: 'int',
+                    isNullable: true
                 }
             ]
         }), true);
@@ -1298,10 +1314,12 @@ export class PostRefactoring2602063888232 implements MigrationInterface {
                 {
                     name: 'value',
                     type: 'jsonb',
+                    isNullable: true
                 },
                 {
                     name: 'relation',
                     type: 'int',
+                    isNullable: true
                 }
             ]
         }), true);
@@ -1426,14 +1444,17 @@ export class PostRefactoring2602063888232 implements MigrationInterface {
                 {
                     name: 'role_id',
                     type: 'int',
+                    isNullable: true
                 },
                 {
                     name: 'company_id',
                     type: 'int',
+                    isNullable: true
                 },
                 {
                     name: 'user_id',
                     type: 'int',
+                    isNullable: true
                 }
             ]
         }), true);
