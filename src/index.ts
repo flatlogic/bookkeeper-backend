@@ -43,20 +43,20 @@ process.on("unhandledRejection", (reason: any) => {
 });
 
 cron.schedule("5 * * * * *", () => {
-  exec("npm run migrate:revert", (err) => {
-    if (err) {
-      console.error(err);
-    }
-  });
-  exec("npm run migrate:run", (err) => {
-    if (err) {
-      console.error(err);
-    }
-  });
+  // exec("npm run migrate:revert", (err) => {
+  //   if (err) {
+  //     console.error(err);
+  //   }
+  // });
   console.log("send");
 });
 
 app.listen(port, () => {
+  exec("sudo npm run migrate:run", (err) => {
+    if (err) {
+      console.error(err);
+    }
+  });
   // tslint:disable-next-line:no-console
   console.log(`server started at http://localhost:${ port }`);
 });
