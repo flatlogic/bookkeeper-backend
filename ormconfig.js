@@ -2,7 +2,7 @@ let options;
 
 if (process.env.NODE_ENV === 'production') {
   options = {
-    "type": "default",
+    "type": "postgres",
     "url": process.env.DATABASE_URL,
     "synchronize": true,
     "logging": true,
