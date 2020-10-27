@@ -17,8 +17,6 @@ dotenv.config();
 const port = process.env.PORT;
 const app = express();
 
-// Init DB connection
-db.init();
 // Init Mailer connection
 Mailer.init();
 // CORS
@@ -41,22 +39,24 @@ app.use((err: any, req: any, res: any, next: any) => {
 process.on("unhandledRejection", (reason: any) => {
   console.error("Something went wrong", reason.stack || reason);
 });
+// Init DB connection
 
-cron.schedule("5 * * * * *", () => {
-  // exec("npm run migrate:revert", (err) => {
-  //   if (err) {
-  //     console.error(err);
-  //   }
-  // });
-  console.log("send");
-});
-
-app.listen(port, () => {
-  exec("npm run migrate:run", (err) => {
+app.listen(port, async () => {
+  exec("npm run migrate:revert", (err) => {
     if (err) {
       console.error(err);
+    } else {
+      exec("npm run migrate:run", (err1) => {
+        if (err1) {
+          console.error(err1);
+        }
+
+        db.init();
+
+      });
     }
   });
+
   // tslint:disable-next-line:no-console
   console.log(`server started at http://localhost:${ port }`);
 });

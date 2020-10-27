@@ -6,8 +6,8 @@
   "scripts": {
     "seed:config": "ts-node ./node_modules/typeorm-seeding/dist/cli.js config",
     "seed:run": "ts-node ./node_modules/typeorm-seeding/dist/cli.js seed",
-    "migrate:run": "ts-node ./node_modules/typeorm/cli.js migration:run",
-    "migrate:revert": "ts-node ./node_modules/typeorm/cli.js migration:revert",
+    "migrate:run": "cross-env ts-node ./node_modules/typeorm/cli.js migration:run",
+    "migrate:revert": "cross-env ts-node ./node_modules/typeorm/cli.js migration:revert",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prebuild": "tslint -c tslint.json -p tsconfig.json --fix",
     "build": "tsc",
@@ -47,6 +47,7 @@
     "class-validator": "^0.10.0",
     "copyfiles": "^2.1.1",
     "cors": "^2.8.5",
+    "cross-env": "^7.0.2",
     "dotenv": "^8.1.0",
     "email-templates": "^6.0.3",
     "express": "^4.17.1",
