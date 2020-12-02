@@ -29,12 +29,12 @@ if psql command gives you error, please try to reinstall postgres/postgresql and
 
 if you see error please create new user with command -> `createuser postgres -s` (s flag stands for super)
 
-3) now you are logged in under postgres super user, run ```create database bookkeeper_seed```;
-4) run this command 
+3) now you are logged in under postgres super user, run `create database bookkeeper_seed`;
+4) run this command `npm run migrate:run`
 
-WINDOWS
-MAC OS
+# WINDOWS
+
 1) install postgres
-2) run psql -U postgres
-3) now you are logged in under postgres super user, run ```create database bookkeeper_seed```;
-4) run this command 
+2) run `psql -U postgres`
+3) now you are logged in under postgres super user, run `create database bookkeeper_seed`;
+4) run this command `npm run migrate:run`
