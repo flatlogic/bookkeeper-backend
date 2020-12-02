@@ -27,7 +27,7 @@ if (process.env.NODE_ENV === 'production') {
     "port": 5432,
     "username": "postgres",
     "password": "root",
-    "database": "cp_master_seed",
+    "database": "bookkeeper_seed",
     "synchronize": true,
     "logging": true,
     "migrationsTableName": "_migrations",
