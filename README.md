@@ -38,3 +38,28 @@ if you see error please create new user with command -> `createuser postgres -s`
 2) run `psql -U postgres`
 3) now you are logged in under postgres super user, run `create database bookkeeper_seed`;
 4) run this command `npm run migrate:run`
+
+# ENV file
+
+Please add all required variables to your .env file, here is an example below
+
+#Postgres configuration
+PGHOST=localhost
+PGUSER=postgres
+PGDATABASE=bookkeeper_seed
+PGPASSWORD=root
+PGPORT=5432
+
+#SMTP
+SMTP_HOST=yourmail
+SMTP_USER=youruser
+SMTP_PASSWORD=yourpassword
+SMTP_PORT=yourport
+SMTP_FROM=youruser
+SMTP_USE_TLS=true or false
+
+#UI Project
+UI_BASE_URL=http://localhost:8088
+UI_SET_PASSWORD_URL=/password/set
+
+SECRET=yoursecret
