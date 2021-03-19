@@ -10,6 +10,12 @@ if (process.env.NODE_ENV === 'production') {
     "entities": [
       "src/entities/**/*.ts"
     ],
+    "ssl": true,
+    "extra": {
+      "ssl": {
+        "rejectUnauthorized": false
+      }
+    },
     "migrations": [
       "src/migrations/**/*.ts"
     ],
