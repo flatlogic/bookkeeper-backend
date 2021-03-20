@@ -23,7 +23,7 @@
   "author": "Flatlogic LLC",
   "license": "ISC",
   "engines": {
-    "node": "10.x"
+    "node": "12.9.1"
   },
   "dependencies": {
     "@types/axios": "^0.14.0",
