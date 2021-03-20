@@ -20,7 +20,7 @@ const app = express();
 // Init Mailer connection
 Mailer.init();
 // CORS
-app.use(cors({credentials: true, origin: true, maxAge: 600}));
+app.use(cors());
 // Parse incoming JSON data
 app.use( express.json() );
 // Configure Express to serve static files in the public folder
