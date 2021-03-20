@@ -6,7 +6,7 @@ export const init = async () => {
   const username: string = process.env.PGUSER;
   const password: string = process.env.PGPASSWORD;
   const port: number = +process.env.PGPORT;
-
+  console.log(database);
   try {
     return await createConnection({
       type: "postgres",

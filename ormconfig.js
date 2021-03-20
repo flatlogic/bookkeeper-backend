@@ -29,19 +29,17 @@ if (process.env.NODE_ENV === 'production') {
 } else {
   options = {
     "type": "postgres",
-    "url": process.env.DATABASE_URL,
+    "host": "localhost",
+    "port": 5432,
+    "username": "postgres",
+    "password": "root",
+    "database": "bookkeeper_seed",
     "synchronize": true,
     "logging": true,
     "migrationsTableName": "_migrations",
     "entities": [
       "src/entities/**/*.ts"
     ],
-    "ssl": true,
-    "extra": {
-      "ssl": {
-        "rejectUnauthorized": false
-      }
-    },
     "migrations": [
       "src/migrations/**/*.ts"
     ],
