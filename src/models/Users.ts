@@ -210,7 +210,7 @@ export default class Users {
   }
 
   public isAdmin() {
-    return this.roles.includes("ADMINISTRATOR");
+    return this.roles.includes("ADMINISTRATOR") || this.roles.includes("SUPER_ADMIN");
   }
 
   public getOrganization() {

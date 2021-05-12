@@ -39,6 +39,9 @@ if you see error please create new user with command -> `createuser postgres -s`
 3) now you are logged in under postgres super user, run `create database bookkeeper_seed`;
 4) run this command `npm run migrate:run`
 
+
+Also set origin (in index.ts) to "http://localhost:3000" or whatever you use for your frontend and switch SSL to false
+
 # ENV file
 
 Please add all required variables to your .env file, here is an example below    
