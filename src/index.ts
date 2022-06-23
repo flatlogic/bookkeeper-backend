@@ -42,19 +42,13 @@ process.on("unhandledRejection", (reason: any) => {
 // Init DB connection
 
 app.listen(port, async () => {
-  exec("npm run migrate:revert", (err) => {
-    if (err) {
-      console.error(err);
-    } else {
-      exec("npm run migrate:run", (err1) => {
-        if (err1) {
-          console.error(err1);
-        }
-
-        db.init();
-
-      });
+  exec("npm run migrate:run", (err1) => {
+    if (err1) {
+      console.error(err1);
     }
+
+    db.init();
+
   });
 
   // tslint:disable-next-line:no-console
