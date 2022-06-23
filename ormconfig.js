@@ -32,7 +32,7 @@ if (process.env.NODE_ENV === 'production') {
     "host": "localhost",
     "port": 5432,
     "username": "postgres",
-    "password": "root",
+    "password": "",
     "database": "bookkeeper_seed",
     "synchronize": true,
     "logging": true,

@@ -9,7 +9,7 @@ export const init = async () => {
 
   try {
     return await createConnection({
-      name: "default",
+      name: "bookkeeper_seed",
       type: "postgres",
       database,
       host,
