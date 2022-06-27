@@ -14,7 +14,7 @@ import Mailer from "./services/mailer";
 
 dotenv.config();
 
-const port = process.env.SERVER_PORT;
+const port = process.env.PORT;
 const app = express();
 
 // Init Mailer connection
