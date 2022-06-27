@@ -23,16 +23,15 @@
   "author": "Flatlogic LLC",
   "license": "ISC",
   "engines": {
-    "node": ">=12.14.1"
+    "node": ">=16.15.1",
+    "npm": ">=8.11.0"
   },
   "dependencies": {
-    "@types/axios": "^0.14.0",
     "@types/bcrypt": "^3.0.0",
     "@types/cors": "^2.8.6",
     "@types/dotenv": "^6.1.1",
     "@types/email-templates": "^6.0.0",
     "@types/express": "^4.17.1",
-    "@types/express-validator": "^3.0.0",
     "@types/joi": "^14.3.3",
     "@types/jsonwebtoken": "^8.3.4",
     "@types/lodash": "^4.14.144",
