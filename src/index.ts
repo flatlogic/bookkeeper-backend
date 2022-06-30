@@ -2,10 +2,10 @@ import { exec } from "child_process";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
-import cron from "node-cron";
 import passport from "passport";
 import path from "path";
 import "reflect-metadata";
+import { promisify } from "util";
 
 import * as routes from "./routes";
 import * as authentication from "./services/authentication";
@@ -42,14 +42,12 @@ process.on("unhandledRejection", (reason: any) => {
 // Init DB connection
 
 app.listen(port, async () => {
-  exec("npm run migrate:run", (err1) => {
-    if (err1) {
-      console.error(err1);
-    }
 
-    db.init();
-
+  await promisify(exec)("npm run migrate:run").then((val) => {
+    console.log(val.stdout);
+    console.error(val.stderr);
   });
+  await db.init();
 
   // tslint:disable-next-line:no-console
   console.log(`server started at http://localhost:${ port }`);

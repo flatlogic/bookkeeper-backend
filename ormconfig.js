@@ -8,7 +8,7 @@ if (process.env.NODE_ENV === 'production') {
     "logging": true,
     "migrationsTableName": "_migrations",
     "entities": [
-      "src/entities/**/*.ts"
+      "dist/models/**/*.js"
     ],
     "ssl": true,
     "extra": {
@@ -17,10 +17,7 @@ if (process.env.NODE_ENV === 'production') {
       }
     },
     "migrations": [
-      "src/migrations/**/*.ts"
-    ],
-    "subscribers": [
-      "src/subscriber/**/*.ts"
+      "dist/migrations/**/*.js"
     ],
     "cli": {
       "migrationsDir": "src/migrations"
@@ -38,13 +35,10 @@ if (process.env.NODE_ENV === 'production') {
     "logging": true,
     "migrationsTableName": "_migrations",
     "entities": [
-      "src/entities/**/*.ts"
+      "dist/models/**/*.js"
     ],
     "migrations": [
-      "src/migrations/**/*.ts"
-    ],
-    "subscribers": [
-      "src/subscriber/**/*.ts"
+      "dist/migrations/**/*.js"
     ],
     "cli": {
       "migrationsDir": "src/migrations"
