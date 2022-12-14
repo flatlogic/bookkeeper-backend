@@ -13,7 +13,8 @@ if (process.env.NODE_ENV === 'production') {
     "ssl": true,
     "extra": {
       "ssl": {
-        "rejectUnauthorized": false
+        "rejectUnauthorized": false,
+        "requestCert": true
       }
     },
     "migrations": [
