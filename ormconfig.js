@@ -18,7 +18,7 @@ if (process.env.NODE_ENV === 'production') {
       }
     },
     "migrations": [
-      "dist/migrations/**/*.js"
+      "src/migrations/**/*.ts"
     ],
     "cli": {
       "migrationsDir": "src/migrations"
@@ -39,7 +39,7 @@ if (process.env.NODE_ENV === 'production') {
       "dist/models/**/*.js"
     ],
     "migrations": [
-      "dist/migrations/**/*.js"
+      "src/migrations/**/*.ts"
     ],
     "cli": {
       "migrationsDir": "src/migrations"
