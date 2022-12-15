@@ -8,7 +8,7 @@ if (process.env.NODE_ENV === 'production') {
     "logging": true,
     "migrationsTableName": "_migrations",
     "entities": [
-      "dist/models/**/*.js"
+      "dist/models/**/*.{ts,js}"
     ],
     "ssl": true,
     "extra": {
@@ -18,7 +18,7 @@ if (process.env.NODE_ENV === 'production') {
       }
     },
     "migrations": [
-      "src/migrations/**/*.ts"
+      "src/migrations/**/*.{ts,js}"
     ],
     "cli": {
       "migrationsDir": "src/migrations"
