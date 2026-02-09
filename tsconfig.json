@@ -21,7 +21,6 @@
     "src/**/*"
   ],
   "exclude": [
-    "src/public",
-    "src/migrations"
+    "src/public"
   ]
 }
