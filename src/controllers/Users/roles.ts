@@ -33,7 +33,7 @@ export default class RolesController {
     const repository = await getRepository(Roles);
     const role = await repository.findOne({
       where: {
-        id,
+        id: Number(id),
         organizationId: authUser.getOrganizationId(),
       },
     });
@@ -58,7 +58,7 @@ export default class RolesController {
     if (id) {
       role = await repository.findOne({
         where: {
-          id,
+          id: Number(id),
           organizationId: authUser.getOrganizationId(),
         },
       });

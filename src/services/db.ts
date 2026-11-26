@@ -1,11 +1,8 @@
-import { createConnection, EntitySchema, getManager, ObjectType, Repository } from "typeorm";
+import { DataSource, EntityTarget, ObjectLiteral } from "typeorm";
 
-export const init = () => {
-    return createConnection();
-};
+const dataSource: DataSource = require("../../ormconfig");
 
-export const getRepository = async <Entity>(
-  model: ObjectType<Entity> | EntitySchema<Entity> | string
-): Promise<Repository<Entity>|null> => {
-  return getManager().getRepository(model);
-};
+export const init = () => dataSource.initialize();
+
+export const getRepository = async <Entity extends ObjectLiteral>(model: EntityTarget<Entity>) =>
+  dataSource.getRepository(model);

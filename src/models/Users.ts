@@ -119,11 +119,18 @@ export default class Users {
     this.roles = roles;
   }
 
-  public async setOrganization(id: string|number) {
+  public async setOrganization(value: string | number | {id?: number; name?: string}) {
+    const id = Number(typeof value === "object" ? value.id : value);
+    const name = typeof value === "object" ? value.name : value;
     const repository = await getRepository(Organizations);
-    const result = await repository.findOne(id);
-    if (result) {
-      this.organizations = [result];
+    let organization: Organizations;
+    if (Number.isSafeInteger(id) && id > 0) {
+      organization = await repository.findOneBy({id});
+    } else if (typeof name === "string" && name.length > 0) {
+      organization = await repository.findOneBy({name});
+    }
+    if (organization) {
+      this.organizations = [organization];
     }
   }
 
@@ -137,12 +144,10 @@ export default class Users {
         this.roles = [roleItem.role];
         // this.organizations = [roleItem.organization];
       } else if (roleItem.company && roleItem.role) { // set other roles
-        const result = await repository.findOne({
-          where: {
-            role: roleItem.role,
-            company: roleItem.company,
-            user: this.id,
-          }
+        const result = this.id && await repository.findOneBy({
+          role: { id: Number(roleItem.role) },
+          company: { id: Number(roleItem.company) },
+          user: { id: this.id },
         });
         if (result) {
           this.companyRoles.push(result);

@@ -11,7 +11,7 @@ export default class GeneralLedgerController {
     const repository = await getRepository(GeneralLedger);
     const generalLedger = await repository.findOne({
       where: {
-        company: authUser.lastCompanySelected.id,
+        company: { id: authUser.lastCompanySelected.id },
       },
       relations: ["retainedEarningsAccount", "retainedEarningsSubAccount"],
     });
@@ -33,7 +33,7 @@ export default class GeneralLedgerController {
     const repository = await getRepository(GeneralLedger);
     let generalLedger = await repository.findOne({
       where: {
-        company: authUser.lastCompanySelected.id,
+        company: { id: authUser.lastCompanySelected.id },
       },
       relations: ["retainedEarningsAccount", "retainedEarningsSubAccount"],
     });

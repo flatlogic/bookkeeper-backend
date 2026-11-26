@@ -1,50 +1,22 @@
-let options;
+require("dotenv").config();
+const path = require("path");
+const { DataSource } = require("typeorm");
 
-if (process.env.NODE_ENV === 'production') {
-  options = {
-    "type": "postgres",
-    "url": process.env.DATABASE_URL,
-    "synchronize": true,
-    "logging": true,
-    "migrationsTableName": "_migrations",
-    "entities": [
-      "dist/models/**/*.js"
-    ],
-    "ssl": true,
-    "extra": {
-      "ssl": {
-        "rejectUnauthorized": false
-      }
-    },
-    "migrations": [
-      "dist/migrations/**/*.js"
-    ],
-    "cli": {
-      "migrationsDir": "src/migrations"
-    }
-  }
-} else {
-  options = {
-    "type": "postgres",
-    "host": "localhost",
-    "port": 5432,
-    "username": "postgres",
-    "password": "",
-    "database": "bookkeeper_seed",
-    "synchronize": true,
-    "logging": true,
-    "migrationsTableName": "_migrations",
-    "entities": [
-      "dist/models/**/*.js"
-    ],
-    "migrations": [
-      "dist/migrations/**/*.js"
-    ],
-    "cli": {
-      "migrationsDir": "src/migrations"
-    }
-  }
-}
+const connection = process.env.NODE_ENV === "production"
+  ? { url: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } }
+  : {
+      host: process.env.PGHOST || "localhost",
+      port: Number(process.env.PGPORT || 5432),
+      username: process.env.PGUSER || "postgres",
+      password: process.env.PGPASSWORD || "",
+      database: process.env.PGDATABASE || "bookkeeper_seed",
+    };
 
-module.exports = options;
-
+module.exports = new DataSource({
+  type: "postgres",
+  ...connection,
+  synchronize: false,
+  migrationsTableName: "_migrations",
+  entities: [path.join(__dirname, "dist/models/**/*.js")],
+  migrations: [path.join(__dirname, "dist/migrations/active/*.js")],
+});

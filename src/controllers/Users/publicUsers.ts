@@ -64,7 +64,7 @@ export default class PublicUsersController {
     const authUser = req.user as Users;
 
     const repository = await getRepository(Users);
-    const user = await repository.findOne(authUser.id);
+    const user = await repository.findOneBy({ id: authUser.id });
     await user.setLastCompanySelected(company);
 
     const errors = await validate(authUser);

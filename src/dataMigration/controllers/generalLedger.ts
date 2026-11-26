@@ -10,7 +10,7 @@ export default class GeneralLedgerController {
     const { companyId } = req.query;
 
     const repository = await getRepository(GeneralLedger);
-    const gl = await repository.find({where: {company: companyId}});
+    const gl = await repository.find({where: {company: { id: Number(companyId) }}});
 
     res.json(gl);
   }
@@ -22,8 +22,8 @@ export default class GeneralLedgerController {
     const repository = await getRepository(GeneralLedger);
     const account = await repository.findOne({
       where: {
-        currentFiscalYear: fiscalYear,
-        company: companyId,
+        currentFiscalYear: Number(fiscalYear),
+        company: { id: Number(companyId) },
       }
     });
     if (!account) {
@@ -66,7 +66,7 @@ export default class GeneralLedgerController {
       }
 
       let gl = await repository.findOne({
-        where: { currentFiscalYear: mappedData.currentFiscalYear, company: companyId },
+        where: { currentFiscalYear: mappedData.currentFiscalYear, company: { id: Number(companyId) } },
       });
 
       if (gl) {

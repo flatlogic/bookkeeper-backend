@@ -94,7 +94,7 @@ export default class Organizations {
       Object.keys(groupedUsers).map(async (userId) => {
         const user = await repository.findOne({
           where: {
-            id: userId,
+            id: Number(userId),
             isDeleted: false,
           },
           relations: ["companyRoles"],

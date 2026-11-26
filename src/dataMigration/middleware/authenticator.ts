@@ -5,7 +5,7 @@ import { getRepository } from "../../services/db";
 
 export default async function(req: Request, res: Response, next: () => void) {
   const { _username, _token } = req.query;
-  if (!_username || !_token) {
+  if (typeof _username !== "string" || !_username || typeof _token !== "string" || !_token) {
     return res.status(400).json({
       errors: {
         message: "User credentials are empty",
@@ -14,11 +14,10 @@ export default async function(req: Request, res: Response, next: () => void) {
   }
 
   const repository = await getRepository(Users);
-  const user = await repository.findOne({
-    where: {
-      username: _username,
-      passport: _token,
-    },
+  const credentials = {username: _username, passport: _token};
+  const legacyTokenColumn = repository.metadata.findColumnWithPropertyName("passport");
+  const user = legacyTokenColumn && await repository.findOne({
+    where: credentials,
     relations: ["organizations"],
   });
 

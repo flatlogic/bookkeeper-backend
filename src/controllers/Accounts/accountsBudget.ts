@@ -13,7 +13,7 @@ export default class AccountsBudgetController {
     const accountRepository = await getRepository(Accounts);
     const budgetRepository = await getRepository(Budget);
 
-    const account = await accountRepository.findOne(accountId);
+    const account = await accountRepository.findOneBy({ id: Number(accountId) });
     if (!account) {
       return res.status(400).json({
         errors: {
@@ -24,7 +24,7 @@ export default class AccountsBudgetController {
 
     let budgetEntity = await budgetRepository.findOne({
       where: {
-        account: accountId,
+        account: { id: Number(accountId) },
       },
       relations: ["account"],
     });
@@ -53,7 +53,7 @@ export default class AccountsBudgetController {
     const repository = await getRepository(Budget);
     const budget = await repository.findOne({
       where: {
-        account: accountId,
+        account: { id: Number(accountId) },
       },
     });
     if (!budget) {

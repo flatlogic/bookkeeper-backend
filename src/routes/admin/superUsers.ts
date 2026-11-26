@@ -7,7 +7,7 @@ import authentication from "../../middleware/validators/auth";
 import requestErrorValidator, { requestParams } from "../../middleware/validators/request";
 
 export default ( app: express.Application ) => {
-  app.all( "/api/admin/super-users/*", authentication([BASE_ROLES.superUser]));
+  app.use("/api/admin/super-users", authentication([BASE_ROLES.superUser]));
   app.get( "/api/admin/super-users", SuperUsersController.list);
   app.get( "/api/admin/super-users/:id", requestParams.hasId, requestErrorValidator, SuperUsersController.get);
   app.post( "/api/admin/super-users", SuperUsersController.update);

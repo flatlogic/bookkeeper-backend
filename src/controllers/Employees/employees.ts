@@ -22,7 +22,7 @@ export default class EmployeesController {
     const repository = await getRepository(Employees);
     const employee = await repository.findOne({
       where: {
-        id,
+        id: Number(id),
       }
     });
     if (!employee) {
@@ -45,7 +45,7 @@ export default class EmployeesController {
     if (id) {
       employee = await repository.findOne({
         where: {
-          id,
+          id: Number(id),
         },
       });
       if (!employee) {

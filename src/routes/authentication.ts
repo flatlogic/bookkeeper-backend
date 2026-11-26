@@ -6,7 +6,9 @@ import requestErrorValidator from "../middleware/validators/request";
 
 export default ( app: express.Application ) => {
   app.post( "/api/login", authValidator.login, requestErrorValidator, AuthenticationController.login);
-  app.post( "/api/register", authValidator.register, requestErrorValidator, AuthenticationController.register);
+  app.post("/api/register", (_req, res) => {
+    res.status(403).json({ errors: { message: "Only administrators can create users" } });
+  });
   app.post(
     "/api/password/set-password",
     authValidator.setPassword,

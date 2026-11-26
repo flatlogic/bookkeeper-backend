@@ -26,7 +26,7 @@ const schema = {
       }
 
       const accountsRepository = await getRepository(Accounts);
-      const account = await accountsRepository.findOne({code: value});
+      const account = await accountsRepository.findOneBy({code: value});
       if (!account) {
         throw new Error("NonJobDefaultGLAccount not found");
       }
@@ -41,7 +41,7 @@ const schema = {
       }
 
       const accountsRepository = await getRepository(Accounts);
-      const account = await accountsRepository.findOne({code: value, isSubAccount: true});
+      const account = await accountsRepository.findOneBy({code: value, isSubAccount: true});
       if (!account) {
         throw new Error("NonJobDefaultGLSubAcnt not found");
       }

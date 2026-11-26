@@ -32,8 +32,8 @@ export default class CustomersController {
     const repository = await getRepository(Customers);
     const customer = await repository.findOne({
       where: {
-        id,
-        company: authUser.lastCompanySelected.id,
+        id: Number(id),
+        company: { id: authUser.lastCompanySelected.id },
       },
       relations: ["defaultAccount", "defaultSubAccount"],
     });
@@ -58,8 +58,8 @@ export default class CustomersController {
     if (id) {
       customer = await repository.findOne({
         where: {
-          id,
-          company: authUser.lastCompanySelected.id,
+          id: Number(id),
+          company: { id: authUser.lastCompanySelected.id },
         },
         relations: ["company"],
       });

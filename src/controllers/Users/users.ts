@@ -108,7 +108,7 @@ export default class UsersController {
     if (id) {
       user = await repository.findOne({
         where: {
-          id,
+          id: Number(id),
           isDeleted: false,
         },
         relations: ["companyRoles", "organizations"],
@@ -121,24 +121,22 @@ export default class UsersController {
         });
       }
     } else {
-      let { organization } = req.query;
-      if (authUser.roles.includes("ADMINISTRATOR")) {
-        organization = authUser.organizations[0];
-      }
-      if (!organization) {
-        // return res.status(404).json({
-        //   errors: {
-        //     message: "User should be assigned to any organization",
-        //   },
-        // });
-        organization = { name: "flatlogic" };
-      }
       user = new Users({});
-      userData = {...userData, organization};
+      userData = {...userData, organization: req.query.organization || {name: "flatlogic"}};
       user.setPasswordToken();
     }
 
+    if (authUser.roles.includes(BASE_ROLES.admin)) {
+      const organization = authUser.getOrganizationId();
+      if (!organization) {
+        return res.status(403).json({errors: {message: "Administrator has no organization"}});
+      }
+      userData = {...userData, organization};
+    }
     await user.set(userData);
+    if (!id && !user.getOrganizationId()) {
+      return res.status(400).json({errors: {message: "Organization not found"}});
+    }
 
     const errors = await validate(user);
     if (errors.length > 0) {
@@ -190,7 +188,7 @@ export default class UsersController {
     let user;
     user = await repository.findOne({
       where: {
-        id,
+        id: Number(id),
         isDeleted: false,
       },
       relations: ["companyRoles"],
@@ -282,7 +280,7 @@ export default class UsersController {
     const repository = await getRepository(Users);
     const user = await repository.findOne({
       where: {
-        id,
+        id: Number(id),
       },
       relations: ["organizations"],
     });

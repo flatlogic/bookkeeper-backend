@@ -51,7 +51,7 @@ export default class Roles {
 
   public async setOrganization(id: string|number) {
     const repository = await getRepository(Organizations);
-    const result = await repository.findOne(id);
+    const result = await repository.findOneBy({ id: Number(id) });
     if (result) {
       this.organization = result;
     }

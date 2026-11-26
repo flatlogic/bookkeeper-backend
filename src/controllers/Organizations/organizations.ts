@@ -50,7 +50,7 @@ export default class OrganizationsController {
     const repository = await getRepository(Organizations);
     const organization = await repository.findOne({
       where: {
-        id,
+        id: Number(id),
         isDeleted: false,
       },
       relations: ["users", "physicalAddress", "mailingAddress"],
@@ -83,7 +83,7 @@ export default class OrganizationsController {
     if (id) {
       organization = await repository.findOne({
         where: {
-          id,
+          id: Number(id),
           isDeleted: false,
         },
         relations: ["physicalAddress", "mailingAddress"],
@@ -119,10 +119,10 @@ export default class OrganizationsController {
           const rolesRepository = await getRepository(Roles);
           let roles = await rolesRepository.find({
             where: {
-              organization: 11,
+              organizationId: 11,
             },
           });
-          roles = roles.map((item) => ({...item, id: undefined, organization: result.id})) as Roles[];
+          roles = roles.map((item) => ({...item, id: undefined, organizationId: result.id})) as Roles[];
           await rolesRepository.save(roles);
         }
 

@@ -1,15 +1,14 @@
-import { exec } from "child_process";
 import cors from "cors";
 import dotenv from "dotenv";
 import express from "express";
 import passport from "passport";
 import path from "path";
 import "reflect-metadata";
-import { promisify } from "util";
 
 import * as routes from "./routes";
 import * as authentication from "./services/authentication";
 import * as db from "./services/db";
+import { migrate } from "./services/migrations";
 import Mailer from "./services/mailer";
 
 dotenv.config();
@@ -39,16 +38,20 @@ app.use((err: any, req: any, res: any, next: any) => {
 process.on("unhandledRejection", (reason: any) => {
   console.error("Something went wrong", reason.stack || reason);
 });
-// Init DB connection
-
-app.listen(port, async () => {
-
-  await promisify(exec)("npm run migrate:run").then((val) => {
-    console.log(val.stdout);
-    console.error(val.stderr);
+async function start() {
+  const database = await db.init();
+  try {
+    await migrate(database, "run");
+  } catch (error) {
+    await database.destroy();
+    throw error;
+  }
+  app.listen(port, () => {
+    console.log(`server started at http://localhost:${port}`);
   });
-  await db.init();
+}
 
-  // tslint:disable-next-line:no-console
-  console.log(`server started at http://localhost:${ port }`);
+start().catch(error => {
+  console.error("Database startup failed", error);
+  process.exitCode = 1;
 });

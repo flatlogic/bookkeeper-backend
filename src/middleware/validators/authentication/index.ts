@@ -1,11 +1,7 @@
-import { body, query } from "express-validator";
+import { body } from "express-validator";
 
 export default {
   login: [
-    body("username", "\"username\" cannot be empty").exists(),
-    body("password", "\"password\" cannot be empty").exists(),
-  ],
-  register: [
     body("username", "\"username\" cannot be empty").exists(),
     body("password", "\"password\" cannot be empty").exists(),
   ],

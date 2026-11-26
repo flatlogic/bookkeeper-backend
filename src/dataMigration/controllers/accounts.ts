@@ -32,7 +32,7 @@ export default class AccountsController {
       where: {
         code,
         isSubAccount: Not(true),
-        company: companyId,
+        company: { id: Number(companyId) },
       }
     });
     if (!account) {
@@ -71,7 +71,7 @@ export default class AccountsController {
           where: {
             code: mappedData.code,
             isSubAccount: Not(true),
-            company: companyId,
+            company: { id: Number(companyId) },
           },
           relations: ["company"],
         });

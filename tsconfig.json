@@ -22,6 +22,6 @@
   ],
   "exclude": [
     "src/public",
-    "src/migrations"
+    "src/migrations/2602063888232-PostRefactoring.ts"
   ]
 }

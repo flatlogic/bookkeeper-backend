@@ -6,21 +6,33 @@ The Express and PostgreSQL API for Flatlogic Bookkeeper manages companies, custo
 
 ## Run locally
 
-1. Install Node.js and npm. The package declares Node.js 16.15.1 or later and npm 8.11 or later. Release 1.0.1 was tested on Node.js 22.23.0 with PostgreSQL 16.8.
-2. Create a dedicated development database. The development connection defaults to `bookkeeper_seed` on `localhost:5432`. Set the local database role and connection details in [ormconfig.js](ormconfig.js). The application synchronizes its schema on startup.
-3. Copy [.env.example](.env.example) to `.env`. Set `NODE_ENV=development`, a free `PORT` and a private `SECRET` for signing sessions.
-4. Install dependencies and run the API.
+1. Install Node.js and npm. Release 1.1.0 was tested with Node.js 22.23.0, npm 10.9.8 and PostgreSQL 16.8.
+2. Create a dedicated PostgreSQL database. For local development the defaults are `localhost:5432`, user `postgres` and database `bookkeeper_seed`. Override them with `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD` and `PGDATABASE` as needed. In production set `NODE_ENV=production` and `DATABASE_URL`.
+3. Copy [.env.example](.env.example) to `.env`. Set `PORT` and give `SECRET` a private, random value for signing sessions. Keep the same secret when upgrading an existing installation to preserve its sessions.
+4. Install dependencies and start the API.
 
 ```sh
 npm ci
 npm run dev
 ```
 
-For a compiled run, use `npm run build` followed by `npm start`. Run `npm test` to build and check general ledger validation without starting a database. For email development, see the [mailer](src/services/mailer.ts) and [Ethereal test inboxes](https://ethereal.email/).
+For a compiled run, use `npm run build` followed by `npm start`. Run `npm test` to build and check the login, registration and ledger validation rules. These tests run without PostgreSQL.
+
+## Database upgrades
+
+The API runs pending TypeORM migrations before accepting requests. The first migration creates 13 empty application tables on a fresh database. To work with an existing installation, restore its database and use an existing administrator account. A fresh database requires an administrator provisioned by its operator.
+
+Before upgrading an existing database, take a backup. On a v1.0.1 database, the first migration checks that the expected tables and columns exist and records the baseline in `_migrations`. Accounting records, existing migration history and unrelated tables are preserved. If an expected table or column is missing, startup stops and identifies it. Review any custom column types and constraints separately.
+
+To apply pending migrations before starting the API, build the project and run `npm run migrate:run`. Repeated runs skip migrations already recorded. To revert the most recent migration, run `npm run migrate:revert`. Reverting the 1.1.0 baseline removes its history entry and keeps the tables and data. Local development and production use the same migration code.
+
+## Accounts and sessions
+
+Administrators create users through `POST /api/admin/users`. Public `POST /api/register` returns HTTP 403 and issues no token. New accounts use the existing password setup flow. For privileged accounts created before 1.1.0 with the shared initial password, use the password reset flow to assign individual passwords. For email configuration, see the [mailer](src/services/mailer.ts).
+
+Sign in with `POST /api/login`. A successful response contains the user profile and a `token` value. Send that complete value, including its `JWT ` prefix, in the `Authorization` header. Newly issued tokens contain the account ID and the issue and expiration timestamps. Permissions are read from the database. Sessions issued by v1.0.1 with the same secret remain valid until their original expiration. Signing in again issues a token in the new format.
 
 ## Save a general ledger
-
-Sign in with `POST /api/login`. Use the complete `token` value returned by the API (including the `JWT ` prefix) as the `Authorization` header.
 
 `POST /api/general-ledger` saves the ledger for the signed-in user's selected company. A new ledger needs twelve period months. The form sends `period1Month` through `period12Month` as month numbers (1 through 12), and `period1Status` through `period12Status` as 1 for open or 0 for closed. New periods default to open. Fiscal years are four digits. When editing, you can send just the fields that changed. Invalid values return HTTP 400 with `modelErrors` before the record is saved.
 

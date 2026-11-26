@@ -59,7 +59,11 @@ export default async (data: any, companyId: number) => {
     if (typeof data[source] !== "string" && typeof data[source] !== "number") {
       throw new Error(source + " must be an account code");
     }
-    const account = await accounts.findOne({where: {code: data[source], company: companyId, isSubAccount}});
+    const account = await accounts.findOneBy({
+      code: data[source],
+      company: { id: companyId },
+      isSubAccount,
+    });
     if (!account) {
       throw new Error(source + " not found in this company");
     }

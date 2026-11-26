@@ -72,11 +72,12 @@ export default class SuperUsersController {
           },
         });
       }
-      user.set(data);
+      await user.set(data);
     } else {
-      user = new Users(data);
+      user = new Users({});
+      await user.set(data);
       user.setUserRoles([BASE_ROLES.superUser]);
-      user.setPassword("user");
+      user.setPasswordToken();
     }
 
     const errors = await validate(user);

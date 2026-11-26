@@ -35,9 +35,9 @@ export default class SubAccountsController {
     const repository = await getRepository(Accounts);
     const account = await repository.findOne({
       where: {
-        id,
+        id: Number(id),
         isSubAccount: true,
-        company: authUser.lastCompanySelected.id,
+        company: { id: authUser.lastCompanySelected.id },
       },
       relations: ["parent"],
     });
@@ -62,7 +62,7 @@ export default class SubAccountsController {
     if (id) {
       account = await repository.findOne({
         where: {
-          id,
+          id: Number(id),
           isSubAccount: true,
         },
         relations: ["company"],

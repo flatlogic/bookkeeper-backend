@@ -32,7 +32,7 @@ export default class CustomersController {
     const customer = await repository.findOne({
       where: {
         code,
-        company: companyId,
+        company: { id: Number(companyId) },
       }
     });
     if (!customer) {
@@ -79,7 +79,7 @@ export default class CustomersController {
         customer = await repository.findOne({
           where: {
             code: mappedData.code,
-            company: companyId,
+            company: { id: Number(companyId) },
           },
           relations: ["company"],
         });

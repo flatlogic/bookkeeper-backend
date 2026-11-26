@@ -30,7 +30,7 @@ export default class SubAccountsController {
       where: {
         code,
         isSubAccount: true,
-        company: companyId,
+        company: { id: Number(companyId) },
       }
     });
     if (!account) {
@@ -57,7 +57,7 @@ export default class SubAccountsController {
         where: {
           code,
           isSubAccount: true,
-          company: companyId,
+          company: { id: Number(companyId) },
         },
         relations: ["company"],
       });
