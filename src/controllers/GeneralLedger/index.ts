@@ -3,7 +3,6 @@ import { Request, Response } from "express";
 
 import GeneralLedger from "../../models/GeneralLedger";
 import Users from "../../models/Users";
-import dataMapper from "../../services/dataMapper";
 import { getRepository } from "../../services/db";
 
 export default class GeneralLedgerController {
@@ -42,13 +41,11 @@ export default class GeneralLedgerController {
     if (generalLedger) {
       generalLedger.set(data);
     } else {
-      generalLedger = new GeneralLedger(
-      {
+      generalLedger = new GeneralLedger({
         ...data,
         company: authUser.lastCompanySelected.id,
-        currentFiscalYear: 2019,
-      }, // @ToDo: Fix Me
-      );
+        currentFiscalYear: data.currentFiscalYear === undefined ? 2019 : data.currentFiscalYear,
+      });
     }
 
     const errors = await validate(generalLedger);

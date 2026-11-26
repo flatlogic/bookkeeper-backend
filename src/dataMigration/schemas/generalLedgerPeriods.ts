@@ -1,22 +1,34 @@
-import moment from "moment";
-// @ts-ignore
-import objectMapper from "object-mapper";
-
 import { STATUSES } from "../../constants";
 
-const schema = {} as any;
-
-for (let i = 1; i <= 12; i++) {
-  schema[`Period${i}Description`] = {
-    key: `period${i}Month`,
-    transform: (value: string) => moment().month(value).format("M"),
-    default: null,
-  };
-  schema[`Period${i}Status`] = {
-    key: `period${i}Status`,
-    transform: (value: string|number) => !value ? STATUSES.active : STATUSES.inactive,
-    default: STATUSES.active,
-  };
+function importStatus(value: string | number) {
+  // In the legacy file an empty flag or zero means open, and C or one means closed.
+  const flag = typeof value === "string" ? value.trim().toUpperCase() : value;
+  switch (flag) {
+    case "":
+    case "O":
+    case 0:
+    case "0":
+      return STATUSES.active;
+    case "C":
+    case 1:
+    case "1":
+      return STATUSES.inactive;
+    default:
+      return value;
+  }
 }
 
-export default (data: any) => objectMapper(data, schema);
+export default function generalLedgerPeriods(data: any) {
+  const periods: {[key: string]: string | number} = {};
+  for (let i = 1; i <= 12; i++) {
+    const month = data[`Period${i}Description`];
+    const status = data[`Period${i}Status`];
+    if (month !== undefined) {
+      periods[`period${i}Month`] = month;
+    }
+    if (status !== undefined) {
+      periods[`period${i}Status`] = importStatus(status);
+    }
+  }
+  return periods;
+}

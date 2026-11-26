@@ -1,10 +1,8 @@
 import { validate } from "class-validator";
 import { Request, Response } from "express";
 
-import Accounts from "../../models/Accounts";
 import GeneralLedger from "../../models/GeneralLedger";
 import { getRepository } from "../../services/db";
-import customersMapper from "../schemas/customers";
 import glMapper from "../schemas/generalLedger";
 
 export default class GeneralLedgerController {
@@ -12,13 +10,7 @@ export default class GeneralLedgerController {
     const { companyId } = req.query;
 
     const repository = await getRepository(GeneralLedger);
-    const gl = await repository
-      .createQueryBuilder("gl")
-      .where(
-        "company_id = :company",
-        { company: companyId },
-      )
-      .getMany();
+    const gl = await repository.find({where: {company: companyId}});
 
     res.json(gl);
   }
@@ -64,25 +56,18 @@ export default class GeneralLedgerController {
     for (const data of rawData) {
       let mappedData;
       try {
-        mappedData = await glMapper(data);
+        mappedData = await glMapper(data, Number(companyId));
       } catch (e) {
         savingErrors.push({
-          id: data.CurrentFiscalYear,
+          id: data && data.CurrentFiscalYear,
           message: e.message,
         });
         continue;
       }
 
-      let gl;
-      if (mappedData.currentFiscalYear) {
-        gl = await repository.findOne({
-          where: {
-            currentFiscalYear: mappedData.currentFiscalYear,
-            company: companyId,
-          },
-          relations: ["company"],
-        });
-      }
+      let gl = await repository.findOne({
+        where: { currentFiscalYear: mappedData.currentFiscalYear, company: companyId },
+      });
 
       if (gl) {
         gl.set(mappedData);

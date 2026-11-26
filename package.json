@@ -1,6 +1,6 @@
 {
   "name": "cp_for_web",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "CP for Web",
   "main": "dist/index.js",
   "scripts": {
@@ -8,7 +8,7 @@
     "seed:run": "ts-node ./node_modules/typeorm-seeding/dist/cli.js seed",
     "migrate:run": "ts-node ./node_modules/typeorm/cli.js migration:run",
     "migrate:revert": "ts-node ./node_modules/typeorm/cli.js migration:revert",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "npm run build && node test/general-ledger.js",
     "build": "tsc",
     "start": "node dist/index.js",
     "dev": "nodemon --watch src -e ts,ejs --exec npm run dev:start",
@@ -42,7 +42,7 @@
     "axios": "^0.19.0",
     "bcrypt": "^5.0.1",
     "change-case": "^3.1.0",
-    "class-validator": "^0.10.0",
+    "class-validator": "0.15.1",
     "copyfiles": "^2.1.1",
     "cors": "^2.8.5",
     "cross-env": "^7.0.2",

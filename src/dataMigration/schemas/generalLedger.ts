@@ -3,56 +3,16 @@ import moment from "moment";
 import objectMapper from "object-mapper";
 
 import Accounts from "../../models/Accounts";
+import { ledgerInteger } from "../../models/GeneralLedger";
 import { getRepository } from "../../services/db";
 import generalLedgerPeriodsSchema from "./generalLedgerPeriods";
 
 const schema = {
-  Period1Description: {
-    key: "budget",
-    transform: (value: string, data: any) => generalLedgerPeriodsSchema(data),
-    default: {},
-  },
-  RetEarningsAccount: {
-    key: "retainedEarningsAccount",
-    transform: async (value: string) => {
-      if (!value) {
-        return null;
-      }
-
-      const accountsRepository = await getRepository(Accounts);
-      const account = await accountsRepository.findOne({code: value});
-      if (!account) {
-        throw new Error("RetEarningsAccount not found");
-      }
-      return account;
-    },
-  },
-  RetEarningsSubAcnt: {
-    key: "retainedEarningsSubAccount",
-    transform: async (value: string) => {
-      if (!value) {
-        return null;
-      }
-
-      const accountsRepository = await getRepository(Accounts);
-      const subAccount = await accountsRepository.findOne({code: value, isSubAccount: true});
-      if (!subAccount) {
-        throw new Error("RetEarningsSubAcnt not found");
-      }
-      return subAccount;
-    },
-  },
   LastJournalNumPosted: "lastJournalPosted",
   LastFiscalYearGLPosted: "lastFiscalYearPosted",
   LastFiscalPeriodGLPosted: "lastFiscalPeriodPosted",
-  CurrentFiscalYear: "currentFiscalYear",
   LastFiscalYearOperBalPosted: "lastFiscalYearBalancePosted",
   CurrentBankRecDate: "reconciliationDate",
-  PriorFYStatusFlag: {
-    key: "isPriorFiscalYearClosed",
-    transform: (value: string) => value.toLowerCase() === "c",
-    default: {},
-  },
   DateCurrentFYWasOpened: {
     key: "currentFiscalYearOpenedDate",
     transform: (value: string) => {
@@ -65,12 +25,45 @@ const schema = {
   },
   CalYearOf1stPerOfFiscalYear: "calYearOf1stPerOfFiscalYear",
   CurBankStatementBal: "currentBankBalance",
-  company: "company",
 };
 
-export default async (data: any) => {
-  const result = await objectMapper(data, schema);
-  result.retainedEarningsAccount = await result.retainedEarningsAccount;
-  result.retainedEarningsSubAccount = await result.retainedEarningsSubAccount;
+export default async (data: any, companyId: number) => {
+  const currentFiscalYear = ledgerInteger(data.CurrentFiscalYear);
+  if (!Number.isInteger(currentFiscalYear) || currentFiscalYear < 1000 || currentFiscalYear > 9999) {
+    throw new Error("CurrentFiscalYear must be a four-digit year");
+  }
+
+  const result = objectMapper(data, schema);
+  result.currentFiscalYear = currentFiscalYear;
+  result.budget = generalLedgerPeriodsSchema(data);
+  if (data.PriorFYStatusFlag !== undefined) {
+    const flag = data.PriorFYStatusFlag;
+    if (typeof flag !== "string" || !["", "O", "C"].includes(flag.trim().toUpperCase())) {
+      throw new Error("PriorFYStatusFlag must be empty, O or C");
+    }
+    result.isPriorFiscalYearClosed = flag.trim().toUpperCase() === "C";
+  }
+
+  const accounts = await getRepository(Accounts);
+  for (const [source, target, isSubAccount] of [
+    ["RetEarningsAccount", "retainedEarningsAccount", false],
+    ["RetEarningsSubAcnt", "retainedEarningsSubAccount", true],
+  ] as const) {
+    if (data[source] === undefined) {
+      continue;
+    }
+    if (data[source] === "" || data[source] === null) {
+      result[target] = null;
+      continue;
+    }
+    if (typeof data[source] !== "string" && typeof data[source] !== "number") {
+      throw new Error(source + " must be an account code");
+    }
+    const account = await accounts.findOne({where: {code: data[source], company: companyId, isSubAccount}});
+    if (!account) {
+      throw new Error(source + " not found in this company");
+    }
+    result[target] = account;
+  }
   return result;
 };

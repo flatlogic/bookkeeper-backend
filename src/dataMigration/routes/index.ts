@@ -7,6 +7,7 @@ import customers from "../routes/customers";
 import generalLedger from "../routes/generalLedger";
 
 export default ( app: express.Application ) => {
+  generalLedger( app );
   app.all("/migration/*", authenticator);
 
   app.get(
@@ -15,6 +16,5 @@ export default ( app: express.Application ) => {
   );
 
   accounts( app );
-  generalLedger( app );
   customers( app );
 };
