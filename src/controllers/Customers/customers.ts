@@ -7,10 +7,15 @@ import { STATUSES } from "../../constants";
 import Customers from "../../models/Customers";
 import Users from "../../models/Users";
 import { getRepository } from "../../services/db";
+import { readSort } from "../../services/sort";
 
 export default class CustomersController {
   public static async list(req: Request, res: Response) {
-    const { query, sortKey = "id", sortOrder = "asc"} = req.query;
+    const { query } = req.query;
+    const sort = readSort(req, res);
+    if (!sort) {
+      return;
+    }
     const authUser = req.user as Users;
 
     const repository = await getRepository(Customers);
@@ -20,7 +25,7 @@ export default class CustomersController {
         ${query ? "AND (code ~* :query OR description ~* :query)" : ""}`,
         { query, company: authUser.lastCompanySelected.id }
       )
-      .orderBy(`customers.${changeCase.snakeCase(sortKey)}`, sortOrder.toUpperCase())
+      .orderBy(`customers.${changeCase.snakeCase(sort.key)}`, sort.direction)
       .getMany();
 
     res.json(customers);
@@ -35,7 +40,7 @@ export default class CustomersController {
         id: Number(id),
         company: { id: authUser.lastCompanySelected.id },
       },
-      relations: ["defaultAccount", "defaultSubAccount"],
+      relations: { defaultAccount: true, defaultSubAccount: true },
     });
     if (!customer) {
       return res.status(404).json({
@@ -61,7 +66,7 @@ export default class CustomersController {
           id: Number(id),
           company: { id: authUser.lastCompanySelected.id },
         },
-        relations: ["company"],
+        relations: { company: true },
       });
       if (!customer) {
         return res.status(404).json({
@@ -119,6 +124,9 @@ export default class CustomersController {
 
   public static async checkCodeAvailable(req: Request, res: Response) {
     const { value, id } = req.query;
+    if (typeof value !== "string" || !value) {
+      return res.status(400).json({errors: {message: "Provide a value to check"}});
+    }
     const authUser = req.user as Users;
 
     const repository = await getRepository(Customers);

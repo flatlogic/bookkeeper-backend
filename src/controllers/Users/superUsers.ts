@@ -5,11 +5,16 @@ import { Request, Response } from "express";
 import { BASE_ROLES } from "../../constants";
 import Users from "../../models/Users";
 import { getRepository } from "../../services/db";
+import { readSort } from "../../services/sort";
 
 export default class SuperUsersController {
   public static async list(req: Request, res: Response) {
     console.log("super List");
-    const { query, sortKey = "id", sortOrder = "asc"} = req.query;
+    const { query } = req.query;
+    const sort = readSort(req, res);
+    if (!sort) {
+      return;
+    }
     const repository = await getRepository(Users);
     const usersQuery = repository
       .createQueryBuilder()
@@ -18,9 +23,7 @@ export default class SuperUsersController {
         ${query ? "AND (first_name ~* :query OR last_name ~* :query)" : ""}`,
         { role: BASE_ROLES.superUser, isDeleted: false, query }
       );
-    if (sortKey && sortOrder) {
-      usersQuery.orderBy(changeCase.snakeCase(sortKey), sortOrder.toUpperCase());
-    }
+    usersQuery.orderBy(changeCase.snakeCase(sort.key), sort.direction);
     const users = await usersQuery.getMany();
 
     res.json(users);

@@ -59,7 +59,7 @@ export default class SubAccountsController {
           isSubAccount: true,
           company: { id: Number(companyId) },
         },
-        relations: ["company"],
+        relations: { company: true },
       });
       if (!account) {
         return res.status(404).json({

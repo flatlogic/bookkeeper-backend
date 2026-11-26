@@ -73,7 +73,7 @@ export default class AccountsController {
             isSubAccount: Not(true),
             company: { id: Number(companyId) },
           },
-          relations: ["company"],
+          relations: { company: true },
         });
         // if (!account) {
         //   savingErrors.push({

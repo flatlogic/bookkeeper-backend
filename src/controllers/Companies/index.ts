@@ -6,10 +6,15 @@ import Companies from "../../models/Companies";
 import Users from "../../models/Users";
 import dataMapper from "../../services/dataMapper";
 import { getRepository } from "../../services/db";
+import { readSort } from "../../services/sort";
 
 export default class CompaniesController {
   public static async list(req: Request, res: Response) {
-    const { query, sortKey = "id", sortOrder = "asc"} = req.query;
+    const { query } = req.query;
+    const sort = readSort(req, res);
+    if (!sort) {
+      return;
+    }
     const repository = await getRepository(Companies);
     const authUser = req.user as Users;
 
@@ -28,9 +33,7 @@ export default class CompaniesController {
     } else {
       companiesQuery.leftJoinAndSelect("companies.organization", "organization");
     }
-    if (sortKey && sortOrder) {
-      companiesQuery.orderBy(`companies.${changeCase.snakeCase(sortKey)}`, sortOrder.toUpperCase());
-    }
+    companiesQuery.orderBy(`companies.${changeCase.snakeCase(sort.key)}`, sort.direction);
     const companies = await companiesQuery.getMany();
 
     res.json(companies);
@@ -94,12 +97,7 @@ export default class CompaniesController {
 
       company.set(data);
     } else {
-      let { organization } = req.query;
-      if (authUser.isAdmin()) {
-        organization = authUser.getOrganizationId();
-      } else {
-        organization = 1;
-      }
+      const organization = authUser.isAdmin() ? authUser.getOrganizationId() : 1;
       if (!organization) {
         return res.status(404).json({
           errors: {
@@ -188,6 +186,9 @@ export default class CompaniesController {
 
   public static async checkCodeAvailable(req: Request, res: Response) {
     const { value, id } = req.query;
+    if (typeof value !== "string" || !value) {
+      return res.status(400).json({errors: {message: "Provide a value to check"}});
+    }
 
     const repository = await getRepository(Companies);
     const query = repository

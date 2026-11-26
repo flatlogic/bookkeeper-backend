@@ -2,6 +2,7 @@ import { validate } from "class-validator";
 import { Request, Response } from "express";
 
 import Accounts from "../../models/Accounts";
+import Users from "../../models/Users";
 import Budget from "../../models/GeneralLedgerAccountsBudget";
 import { getRepository } from "../../services/db";
 
@@ -13,9 +14,10 @@ export default class AccountsBudgetController {
     const accountRepository = await getRepository(Accounts);
     const budgetRepository = await getRepository(Budget);
 
-    const account = await accountRepository.findOneBy({ id: Number(accountId) });
+    const company = (req.user as Users).lastCompanySelected;
+    const account = await accountRepository.findOneBy({ id: Number(accountId), company: {id: company.id} });
     if (!account) {
-      return res.status(400).json({
+      return res.status(404).json({
         errors: {
           message: "Cannot find account",
         },
@@ -26,10 +28,10 @@ export default class AccountsBudgetController {
       where: {
         account: { id: Number(accountId) },
       },
-      relations: ["account"],
+      relations: { account: true },
     });
     if (budgetEntity) {
-      budgetEntity.set(budget);
+      budgetEntity.set({...budget, account});
     } else {
       budgetEntity = new Budget({
         ...budget,
@@ -50,10 +52,11 @@ export default class AccountsBudgetController {
 
   public static async getBudget(req: Request, res: Response) {
     const { id: accountId } = req.params;
+    const company = (req.user as Users).lastCompanySelected;
     const repository = await getRepository(Budget);
     const budget = await repository.findOne({
       where: {
-        account: { id: Number(accountId) },
+        account: { id: Number(accountId), company: {id: company.id} },
       },
     });
     if (!budget) {

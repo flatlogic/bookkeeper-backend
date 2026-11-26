@@ -1,29 +1,25 @@
 import { validate } from "class-validator";
 import { Request, Response } from "express";
-import get from "lodash/get";
 
 import { STATUSES } from "../../constants";
 import Accounts from "../../models/Accounts";
 import Users from "../../models/Users";
 import { getRepository } from "../../services/db";
 
+// Earlier releases allowed links to parent accounts outside the selected company.
+async function subAccountsWithParent(companyId: number) {
+  const repository = await getRepository(Accounts);
+  return repository.createQueryBuilder("accounts")
+    .leftJoinAndSelect("accounts.parent", "parent", "parent.company_id = :company AND parent.is_subaccount = false")
+    .where("accounts.company_id = :company AND accounts.is_subaccount = true", {company: companyId});
+}
+
 export default class SubAccountsController {
   public static async list(req: Request, res: Response) {
     const authUser = req.user as Users;
-    const repository = await getRepository(Accounts);
-    const accounts = await repository
-      .createQueryBuilder("accounts")
-      .leftJoinAndSelect(
-        "accounts.parent",
-        "parent",
-        // fiscalYear ? "parent.fiscalYear = :fiscalYear" : "",
-        // { fiscalYear },
-      )
-      .where("accounts.status = :status AND accounts.isSubAccount = :isSubAccount AND accounts.company_id = :company", {
-        status: STATUSES.active,
-        isSubAccount: true,
-        company: authUser.lastCompanySelected.id,
-      })
+    const query = await subAccountsWithParent(authUser.lastCompanySelected.id);
+    const accounts = await query
+      .andWhere("accounts.status = :status", {status: STATUSES.active})
       .getMany();
 
     res.json(accounts);
@@ -32,15 +28,8 @@ export default class SubAccountsController {
   public static async get(req: Request, res: Response) {
     const { id } = req.params;
     const authUser = req.user as Users;
-    const repository = await getRepository(Accounts);
-    const account = await repository.findOne({
-      where: {
-        id: Number(id),
-        isSubAccount: true,
-        company: { id: authUser.lastCompanySelected.id },
-      },
-      relations: ["parent"],
-    });
+    const query = await subAccountsWithParent(authUser.lastCompanySelected.id);
+    const account = await query.andWhere("accounts.id = :id", {id: Number(id)}).getOne();
     if (!account) {
       return res.status(404).json({
         errors: {
@@ -54,18 +43,15 @@ export default class SubAccountsController {
 
   public static async update(req: Request, res: Response) {
     const { id } = req.params;
-    const data = req.body;
     const authUser = req.user as Users;
+    const company = authUser.lastCompanySelected;
+    const data = {...req.body, company, isSubAccount: true};
     const repository = await getRepository(Accounts);
 
     let account;
     if (id) {
-      account = await repository.findOne({
-        where: {
-          id: Number(id),
-          isSubAccount: true,
-        },
-        relations: ["company"],
+      account = await repository.findOneBy({
+        id: Number(id), isSubAccount: true, company: {id: company.id},
       });
       if (!account) {
         return res.status(404).json({
@@ -76,7 +62,7 @@ export default class SubAccountsController {
       }
       account.set(data);
     } else {
-      account = new Accounts({...data, isSubAccount: true, company: get(authUser, "lastCompanySelected")});
+      account = new Accounts(data);
     }
 
     const errors = await validate(account);
@@ -108,7 +94,7 @@ export default class SubAccountsController {
       .createQueryBuilder()
       .update(Accounts)
       .set({ status: STATUSES.inactive })
-      .where("id = :id AND isSubAccount = :isSubAccount AND company_id = :company", {
+      .where("id = :id AND is_subaccount = :isSubAccount AND company_id = :company", {
         id,
         isSubAccount: true,
         company: authUser.lastCompanySelected.id,

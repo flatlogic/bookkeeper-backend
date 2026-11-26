@@ -1,7 +1,6 @@
 import changeCase from "change-case";
 import { validate } from "class-validator";
 import { Request, Response } from "express";
-import get from "lodash/get";
 import { Not } from "typeorm";
 
 import { STATUSES } from "../../constants";
@@ -9,10 +8,15 @@ import auth from "../../middleware/validators/auth";
 import Accounts from "../../models/Accounts";
 import Users from "../../models/Users";
 import { getRepository } from "../../services/db";
+import { readSort } from "../../services/sort";
 
 export default class AccountsController {
   public static async list(req: Request, res: Response) {
-    const { fiscalYear, query, sortKey = "id", sortOrder = "asc"} = req.query;
+    const { fiscalYear, query } = req.query;
+    const sort = readSort(req, res);
+    if (!sort) {
+      return;
+    }
     const authUser = req.user as Users;
 
     const repository = await getRepository(Accounts);
@@ -23,7 +27,7 @@ export default class AccountsController {
         ${query ? "AND (code ~* :query OR description ~* :query)" : ""}`,
         { fiscalYear, status: STATUSES.active, isSubAccount: true, query, company: authUser.lastCompanySelected.id }
       )
-      .orderBy(`accounts.${changeCase.snakeCase(sortKey)}`, sortOrder.toUpperCase())
+      .orderBy(`accounts.${changeCase.snakeCase(sort.key)}`, sort.direction)
       .getMany();
 
     res.json(accounts);
@@ -55,7 +59,7 @@ export default class AccountsController {
     const { id } = req.params;
     const { fiscalYear } = req.query;
     const authUser = req.user as Users;
-    const data = req.body;
+    const data = {...req.body, company: authUser.lastCompanySelected, isSubAccount: false};
     const repository = await getRepository(Accounts);
 
     let account;
@@ -66,7 +70,7 @@ export default class AccountsController {
           isSubAccount: Not(true),
           company: { id: authUser.lastCompanySelected.id },
         },
-        relations: ["company"],
+        relations: { company: true },
       });
       if (!account) {
         return res.status(404).json({
@@ -77,7 +81,7 @@ export default class AccountsController {
       }
       account.set(data);
     } else {
-      account = new Accounts({...data, fiscalYear, company: get(authUser, "lastCompanySelected")});
+      account = new Accounts({...data, fiscalYear});
     }
 
     const errors = await validate(account);
@@ -130,6 +134,9 @@ export default class AccountsController {
 
   public static async checkCodeAvailable(req: Request, res: Response) {
     const { value, id } = req.query;
+    if (typeof value !== "string" || !value) {
+      return res.status(400).json({errors: {message: "Provide a value to check"}});
+    }
     const authUser = req.user as Users;
 
     const repository = await getRepository(Accounts);

@@ -9,7 +9,7 @@ export default {
     body("status", "\"status\" cannot be empty").exists(),
   ],
   hasId: [
-    param("id", "\"id\" cannot be empty").exists(),
+    param("id", "\"id\" must be a positive integer").isInt({min: 1, max: 2147483647}),
   ],
   list: [
     query("fiscalYear", "\"fiscalYear\" cannot be empty").exists(),

@@ -5,7 +5,8 @@ interface IObj {
 export default {
   map(data: IObj, fieldsMap: string[]|IObj) {
     if (Array.isArray(fieldsMap)) {
-      return fieldsMap.reduce((map: IObj, field) => {
+      const fields: string[] = fieldsMap;
+      return fields.reduce<IObj>((map, field) => {
         if (typeof data[field] !== "undefined") {
           map[field] = data[field];
         }
@@ -13,7 +14,7 @@ export default {
       }, {});
     }
 
-    return Object.keys(fieldsMap).reduce((map: IObj, field) => {
+    return Object.keys(fieldsMap).reduce<IObj>((map, field) => {
       if (typeof data[field] !== "undefined") {
         const mapField = fieldsMap[field] || field;
         map[mapField] = data[field];

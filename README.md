@@ -6,7 +6,7 @@ The Express and PostgreSQL API for Flatlogic Bookkeeper manages companies, custo
 
 ## Run locally
 
-1. Install Node.js and npm. Release 1.1.0 was tested with Node.js 22.23.0, npm 10.9.8 and PostgreSQL 16.8.
+1. Install Node.js 20.19+ on the 20.x line, 22.13+ on the 22.x line, or 24.11 or later, and npm 8.11 or newer. Version 2.0 drops support for Node 16 and 18. Upgrade your Node runtime before installing dependencies. If you build a container, use a supported Node version in both the build and runtime stages.
 2. Create a dedicated PostgreSQL database. For local development the defaults are `localhost:5432`, user `postgres` and database `bookkeeper_seed`. Override them with `PGHOST`, `PGPORT`, `PGUSER`, `PGPASSWORD` and `PGDATABASE` as needed. In production set `NODE_ENV=production` and `DATABASE_URL`.
 3. Copy [.env.example](.env.example) to `.env`. Set `PORT` and give `SECRET` a private, random value for signing sessions. Keep the same secret when upgrading an existing installation to preserve its sessions.
 4. Install dependencies and start the API.
@@ -16,7 +16,7 @@ npm ci
 npm run dev
 ```
 
-For a compiled run, use `npm run build` followed by `npm start`. Run `npm test` to build and check the login, registration and ledger validation rules. These tests run without PostgreSQL.
+For a compiled run, use `npm run build` followed by `npm start`. Run `npm test` to build and check sessions, public registration, ledger validation, subaccount access and the invitation and password-reset emails. The test suite runs locally without PostgreSQL or an SMTP server.
 
 ## Database upgrades
 
@@ -24,13 +24,23 @@ The API runs pending TypeORM migrations before accepting requests. The first mig
 
 Before upgrading an existing database, take a backup. On a v1.0.1 database, the first migration checks that the expected tables and columns exist and records the baseline in `_migrations`. Accounting records, existing migration history and unrelated tables are preserved. If an expected table or column is missing, startup stops and identifies it. Review any custom column types and constraints separately.
 
-To apply pending migrations before starting the API, build the project and run `npm run migrate:run`. Repeated runs skip migrations already recorded. To revert the most recent migration, run `npm run migrate:revert`. Reverting the 1.1.0 baseline removes its history entry and keeps the tables and data. Local development and production use the same migration code.
+To apply pending migrations before starting the API, build the project and run `npm run migrate:run`. Repeated runs skip migrations already recorded. To revert the most recent migration, run `npm run migrate:revert`. Reverting the 1.1.0 baseline removes its history entry and keeps the tables and data. Local development and production use the same migration code. Version 2.0 keeps the 1.1.0 baseline and its migration history.
 
 ## Accounts and sessions
 
-Administrators create users through `POST /api/admin/users`. Public `POST /api/register` returns HTTP 403 and issues no token. New accounts use the existing password setup flow. For privileged accounts created before 1.1.0 with the shared initial password, use the password reset flow to assign individual passwords. For email configuration, see the [mailer](src/services/mailer.ts).
+Administrators create users through `POST /api/admin/users`. Public `POST /api/register` returns HTTP 403 and issues no token. New accounts use the existing password setup flow. For privileged accounts created before 1.1.0 with the shared initial password, use the password reset flow to assign individual passwords.
 
 Sign in with `POST /api/login`. A successful response contains the user profile and a `token` value. Send that complete value, including its `JWT ` prefix, in the `Authorization` header. Newly issued tokens contain the account ID and the issue and expiration timestamps. Permissions are read from the database. Sessions issued by v1.0.1 with the same secret remain valid until their original expiration. Signing in again issues a token in the new format.
+
+## Email delivery
+
+Set `SMTP_HOST`, `SMTP_FROM` and, if your relay requires authentication, `SMTP_USER` and `SMTP_PASSWORD`. The default port is 587. Set `SMTP_USE_TLS=true` to require STARTTLS or `SMTP_PORT=465` for implicit TLS. For a relay signed by a private certificate authority, set `NODE_EXTRA_CA_CERTS` to its CA certificate file. Configure `UI_BASE_URL` and `UI_SET_PASSWORD_URL` so invitation and reset emails link to your frontend.
+
+## Accounts and subaccounts
+
+The accounts, subaccounts and account-budget endpoints use the signed-in user's active, selected company. The user must still be assigned to that company. A record outside the selected company returns HTTP 404. Requests without an active company assignment return HTTP 403.
+
+To save a subaccount, send `code` and `description` to `POST /api/subaccounts` (create) or `PUT /api/subaccounts/:id` (edit). The optional `parent` is a main account ID in the same company. On edit, omit `parent` to keep the current link or send `null` to clear it. The server sets the company and account type.
 
 ## Save a general ledger
 

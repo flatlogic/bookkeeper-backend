@@ -13,7 +13,7 @@ export default class GeneralLedgerController {
       where: {
         company: { id: authUser.lastCompanySelected.id },
       },
-      relations: ["retainedEarningsAccount", "retainedEarningsSubAccount"],
+      relations: { retainedEarningsAccount: true, retainedEarningsSubAccount: true },
     });
 
     if (!generalLedger) {
@@ -35,7 +35,7 @@ export default class GeneralLedgerController {
       where: {
         company: { id: authUser.lastCompanySelected.id },
       },
-      relations: ["retainedEarningsAccount", "retainedEarningsSubAccount"],
+      relations: { retainedEarningsAccount: true, retainedEarningsSubAccount: true },
     });
 
     if (generalLedger) {

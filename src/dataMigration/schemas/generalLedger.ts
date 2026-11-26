@@ -60,7 +60,7 @@ export default async (data: any, companyId: number) => {
       throw new Error(source + " must be an account code");
     }
     const account = await accounts.findOneBy({
-      code: data[source],
+      code: String(data[source]),
       company: { id: companyId },
       isSubAccount,
     });

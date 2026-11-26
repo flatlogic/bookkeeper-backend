@@ -19,7 +19,7 @@ export default class PublicUsersController {
         id: authUser.id,
         isDeleted: false,
       },
-      relations: ["companyRoles", "organizations"],
+      relations: { companyRoles: true, organizations: true },
     }) as Users;
 
     if (!user) {

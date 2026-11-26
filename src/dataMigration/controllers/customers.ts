@@ -2,7 +2,6 @@ import { validate } from "class-validator";
 import { Request, Response } from "express";
 import { Not } from "typeorm";
 
-import { Err } from "joi";
 import { STATUSES } from "../../constants";
 import Customers from "../../models/Customers";
 import { getRepository } from "../../services/db";
@@ -81,7 +80,7 @@ export default class CustomersController {
             code: mappedData.code,
             company: { id: Number(companyId) },
           },
-          relations: ["company"],
+          relations: { company: true },
         });
       }
 

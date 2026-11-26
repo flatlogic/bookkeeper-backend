@@ -26,7 +26,6 @@ app.use( express.json() );
 app.use( express.static( path.join( __dirname, "public" ) ) );
 // Configure Authentication
 app.use(passport.initialize());
-app.use(passport.session());
 authentication.init(passport);
 // Configure routes
 routes.register(app);

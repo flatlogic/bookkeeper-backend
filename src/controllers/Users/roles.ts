@@ -5,12 +5,17 @@ import { Request, Response } from "express";
 import Roles from "../../models/Roles";
 import Users from "../../models/Users";
 import { getRepository } from "../../services/db";
+import { readSort } from "../../services/sort";
 
 export default class RolesController {
   public static async list(req: Request, res: Response) {
     const authUser = req.user as Users;
 
-    const { query, sortKey = "id", sortOrder = "asc" } = req.query;
+    const { query } = req.query;
+    const sort = readSort(req, res);
+    if (!sort) {
+      return;
+    }
     const repository = await getRepository(Roles);
     const rolesQuery = repository
       .createQueryBuilder("roles")
@@ -19,9 +24,7 @@ export default class RolesController {
         ${query ? "AND (name ~* :query OR description ~* :query)" : ""}`,
         { orgId: authUser.getOrganizationId(), query }
       );
-    if (sortKey && sortOrder) {
-      rolesQuery.orderBy(changeCase.snakeCase(`roles.${sortKey}`), sortOrder.toUpperCase());
-    }
+    rolesQuery.orderBy(changeCase.snakeCase(`roles.${sort.key}`), sort.direction);
     const roles = await rolesQuery.getMany();
 
     res.json(roles);

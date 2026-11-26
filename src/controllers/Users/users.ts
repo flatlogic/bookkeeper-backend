@@ -7,12 +7,17 @@ import Companies from "../../models/Companies";
 import Users from "../../models/Users";
 import dataMapper from "../../services/dataMapper";
 import { getRepository } from "../../services/db";
+import { readSort } from "../../services/sort";
 import Mailer from "../../services/mailer";
 
 export default class UsersController {
   public static async list(req: Request, res: Response) {
     const authUser = req.user as Users;
-    const { company, query, role, sortKey = "id", sortOrder = "asc" } = req.query;
+    const { company, query, role } = req.query;
+    const sort = readSort(req, res);
+    if (!sort) {
+      return;
+    }
     let { organization } = req.query;
     if (authUser.isAdmin()) {
       organization = authUser.getOrganizationId();
@@ -43,9 +48,7 @@ export default class UsersController {
     } else {
         usersQuery.leftJoinAndSelect("users.organizations", "organizations");
     }
-    if (sortKey && sortOrder) {
-      usersQuery.orderBy(changeCase.snakeCase(`users.${sortKey}`), sortOrder.toUpperCase());
-    }
+    usersQuery.orderBy(changeCase.snakeCase(`users.${sort.key}`), sort.direction);
 
     const users = await usersQuery.getMany();
     res.json(users);
@@ -111,7 +114,7 @@ export default class UsersController {
           id: Number(id),
           isDeleted: false,
         },
-        relations: ["companyRoles", "organizations"],
+        relations: { companyRoles: true, organizations: true },
       });
       if (!user || user.getOrganizationId() !== authUser.getOrganizationId()) {
         return res.status(404).json({
@@ -191,7 +194,7 @@ export default class UsersController {
         id: Number(id),
         isDeleted: false,
       },
-      relations: ["companyRoles"],
+      relations: { companyRoles: true },
     });
     if (!user) {
       return res.status(404).json({
@@ -244,7 +247,7 @@ export default class UsersController {
   public static async checkUsernameAvailable(req: Request, res: Response) {
     const { value, id } = req.query;
 
-    if (!value) {
+    if (typeof value !== "string" || !value) {
       return res.status(400).json({
         errors: {
           message: "Value cannot be empty",
@@ -282,7 +285,7 @@ export default class UsersController {
       where: {
         id: Number(id),
       },
-      relations: ["organizations"],
+      relations: { organizations: true },
     });
 
     if (!user) {

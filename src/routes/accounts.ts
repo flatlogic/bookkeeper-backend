@@ -1,5 +1,8 @@
 import * as express from "express";
 
+import resolveAccountParent from "../middleware/accountParent";
+import requireAssignedCompany from "../middleware/selectedCompany";
+
 import AccountsController from "../controllers/Accounts/accounts";
 import AccountsBudgetController from "../controllers/Accounts/accountsBudget";
 import accountsValidators from "../middleware/validators/accounts/accounts";
@@ -9,7 +12,7 @@ import authentication from "../middleware/validators/auth";
 import requestErrorValidator from "../middleware/validators/request";
 
 export default ( app: express.Application ) => {
-  app.all( "/api/accounts*", authentication([]));
+  app.use("/api/accounts", authentication([]), requireAssignedCompany);
 
   app.get(
     "/api/accounts",
@@ -26,11 +29,12 @@ export default ( app: express.Application ) => {
   );
   app.get( "/api/accounts/check-code", AccountsController.checkCodeAvailable);
   app.get( "/api/accounts/:id", accountsValidators.hasId, requestErrorValidator, AccountsController.get);
-  app.post( "/api/accounts", accountsValidators.create, requestErrorValidator, AccountsController.update);
+  app.post( "/api/accounts", accountsValidators.create, requestErrorValidator, resolveAccountParent, AccountsController.update);
   app.put(
     "/api/accounts/:id",
     accountsValidators.hasId,
     requestErrorValidator,
+    resolveAccountParent,
     AccountsController.update
   );
   app.delete( "/api/accounts/:id", accountsValidators.hasId, requestErrorValidator, AccountsController.delete);

@@ -18,7 +18,7 @@ export default async function(req: Request, res: Response, next: () => void) {
   const legacyTokenColumn = repository.metadata.findColumnWithPropertyName("passport");
   const user = legacyTokenColumn && await repository.findOne({
     where: credentials,
-    relations: ["organizations"],
+    relations: { organizations: true },
   });
 
   if (!user) {

@@ -27,7 +27,7 @@ export default class Organizations {
   @Column({default: STATUSES.active})
   public status: number = STATUSES.active;
 
-  @ManyToMany(() => Users, (user) => user.organizations, {cascade: true, onDelete: "CASCADE"})
+  @ManyToMany(() => Users, (user) => user.organizations, {cascade: true, onDelete: "CASCADE", onUpdate: "NO ACTION"})
   public users: Users[];
 
   @OneToMany(() => Roles, (role) => role.organization, {cascade: true, onDelete: "CASCADE"})
@@ -97,7 +97,7 @@ export default class Organizations {
             id: Number(userId),
             isDeleted: false,
           },
-          relations: ["companyRoles"],
+          relations: { companyRoles: true },
         });
         await user.setRoles(groupedUsers[userId]);
         this.users.push(user);

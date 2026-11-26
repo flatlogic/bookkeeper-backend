@@ -105,7 +105,7 @@ export default class Companies {
   @Column({name: "is_multiple_local_taxation", nullable: false, default: false})
   public isMultipleLocalTaxation: boolean = false;
 
-  @ManyToMany(() => Users, (user) => user.companies)
+  @ManyToMany(() => Users, (user) => user.companies, {onDelete: "NO ACTION", onUpdate: "NO ACTION"})
   public users: Users[];
 
   @ManyToOne(() => Organizations, (organization) => organization.companies)

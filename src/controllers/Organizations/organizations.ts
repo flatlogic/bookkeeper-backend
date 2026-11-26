@@ -7,10 +7,15 @@ import Organizations from "../../models/Organizations";
 import Roles from "../../models/Roles";
 import Users from "../../models/Users";
 import { getRepository } from "../../services/db";
+import { readSort } from "../../services/sort";
 
 export default class OrganizationsController {
   public static async list(req: Request, res: Response) {
-    const { query, sortKey, sortOrder } = req.query;
+    const { query } = req.query;
+    const sort = readSort(req, res);
+    if (!sort) {
+      return;
+    }
     const repository = await getRepository(Organizations);
     const authUser = req.user as Users;
 
@@ -28,8 +33,8 @@ export default class OrganizationsController {
         { id: authUser.getOrganizationId() },
       );
     }
-    if (sortKey && sortOrder) {
-      organizationsQuery.orderBy(changeCase.snakeCase(sortKey), sortOrder.toUpperCase());
+    if (req.query.sortKey && req.query.sortOrder) {
+      organizationsQuery.orderBy(changeCase.snakeCase(sort.key), sort.direction);
     }
     const organizations = await organizationsQuery.getMany();
 
@@ -53,7 +58,7 @@ export default class OrganizationsController {
         id: Number(id),
         isDeleted: false,
       },
-      relations: ["users", "physicalAddress", "mailingAddress"],
+      relations: { users: true, physicalAddress: true, mailingAddress: true },
     });
     if (!organization) {
       return res.status(404).json({
@@ -86,7 +91,7 @@ export default class OrganizationsController {
           id: Number(id),
           isDeleted: false,
         },
-        relations: ["physicalAddress", "mailingAddress"],
+        relations: { physicalAddress: true, mailingAddress: true },
       });
       if (!organization) {
         return res.status(404).json({
@@ -122,7 +127,7 @@ export default class OrganizationsController {
               organizationId: 11,
             },
           });
-          roles = roles.map((item) => ({...item, id: undefined, organizationId: result.id})) as Roles[];
+          roles = roles.map(({id, ...role}) => rolesRepository.create({...role, organizationId: result.id}));
           await rolesRepository.save(roles);
         }
 
@@ -166,6 +171,9 @@ export default class OrganizationsController {
 
   public static async checkNameAvailable(req: Request, res: Response) {
     const { value, id } = req.query;
+    if (typeof value !== "string" || !value) {
+      return res.status(400).json({errors: {message: "Provide a value to check"}});
+    }
 
     const repository = await getRepository(Organizations);
     const query = repository
